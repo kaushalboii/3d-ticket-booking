@@ -1,6 +1,6 @@
 {
-  "name": "CINESCAPE - 3D Cinema Experience & Ticket Booking",
-  "description": "Premium cinema ticket booking platform with interactive 3D seat preview, realistic eye-level sightline simulation, and real-time seat reservation.",
+  "name": "CINESCAPE: Meridian — 3D Cinema Experience & Ticket Booking",
+  "description": "Minimal, dark premium cinema seat booking experience with signature first-person seat view preview, realistic eye-level sightlines, and real-time seat reservation.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

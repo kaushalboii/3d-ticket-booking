@@ -1,454 +1,253 @@
-import React, { useState } from 'react';
-import { MOVIES as initialMovies, SHOWTIMES as initialShowtimes, THEATRES, generateAuditoriumSeats } from './data/mockData';
-import { Movie, Showtime, Seat, Booking } from './types';
-import { MovieDetailsView } from './components/MovieDetailsView';
-import { SeatSelectionView } from './components/SeatSelectionView';
+import React, { useState, useEffect } from 'react';
+import { generateVelsTheatresSeats, VELS_SHOWTIMES, VELS_CINEMA_INFO, MOVIES_LIST } from './data/velsData';
+import { Seat, Showtime, Movie, Booking, UserProfile } from './types';
+import { CinemaHeader } from './components/CinemaHeader';
+import { ScreenArc } from './components/ScreenArc';
+import { SeatMap } from './components/SeatMap';
+import { SeatLegend } from './components/SeatLegend';
+import { SeatBottomBar } from './components/SeatBottomBar';
+import { SeatPreviewView } from './components/SeatPreviewView';
 import { CheckoutModal } from './components/CheckoutModal';
-import { TicketConfirmation } from './components/TicketConfirmation';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import {
-  Film,
-  Search,
-  Star,
-  MapPin,
-  Eye,
-  SlidersHorizontal,
-  ShieldCheck,
-  Compass,
-  ArrowRight,
-  Volume2
-} from 'lucide-react';
+import { BookingConfirmation } from './components/BookingConfirmation';
+import { LandingPage } from './components/LandingPage';
+import { LoginModal } from './components/LoginModal';
+import { Smartphone, Maximize2, Home, Film } from 'lucide-react';
 
 export default function App() {
-  const [movies, setMovies] = useState<Movie[]>(initialMovies);
-  const [showtimes, setShowtimes] = useState<Showtime[]>(initialShowtimes);
-  const [cinemaSeats, setCinemaSeats] = useState<Seat[]>(() => generateAuditoriumSeats());
+  const [seats, setSeats] = useState<Seat[]>(() => generateVelsTheatresSeats());
+  const [showtimes, setShowtimes] = useState<Showtime[]>(VELS_SHOWTIMES);
+  const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>('st-4'); // '11:10 PM'
+  const [activeMovie, setActiveMovie] = useState<Movie>(MOVIES_LIST[0]); // 'Scene - Tamil'
 
-  // Navigation and selection state
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(() => {
-    if (typeof window !== 'undefined' && (window.location.hash.includes('3d') || window.location.hash.includes('eye') || window.location.hash.includes('movie'))) {
-      return initialMovies[0];
+  // Default selected seat: H1 or F8 (in BookMyShow screenshot, H1 is in green focus)
+  const [selectedSeatId, setSelectedSeatId] = useState<string | null>('F8');
+
+  // Active Screen: 'landing' | 'seat_map' | 'seat_preview' | 'confirmation'
+  const [currentScreen, setCurrentScreen] = useState<'landing' | 'seat_map' | 'seat_preview' | 'confirmation'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('preview') || hash.includes('3d') || hash.includes('eye')) {
+        return 'seat_preview';
+      }
+      if (hash.includes('landing') || hash.includes('home') || hash.includes('movies')) {
+        return 'landing';
+      }
     }
-    return null;
-  });
-  const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(() => {
-    if (typeof window !== 'undefined' && (window.location.hash.includes('3d') || window.location.hash.includes('eye'))) {
-      return initialShowtimes[0];
-    }
-    return null;
-  });
-
-  // Booking flow state
-  const [checkoutSeats, setCheckoutSeats] = useState<Seat[] | null>(null);
-  const [activeBooking, setActiveBooking] = useState<Booking | null>(null);
-
-  // Admin dashboard state
-  const [showAdmin, setShowAdmin] = useState(false);
-
-  // Home filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<'now_showing' | 'imax' | 'upcoming'>('now_showing');
-  const [selectedGenre, setSelectedGenre] = useState<string>('All');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('All');
-
-  const genres = ['All', 'Sci-Fi', 'Action', 'Thriller', 'Cyberpunk', 'Horror', 'Animation'];
-
-  const filteredMovies = movies.filter((m) => {
-    const matchesSearch =
-      m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.director.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesGenre = selectedGenre === 'All' || m.genres.includes(selectedGenre);
-    const matchesLanguage = selectedLanguage === 'All' || m.languages.includes(selectedLanguage);
-
-    if (activeCategory === 'imax') {
-      return matchesSearch && matchesGenre && matchesLanguage && m.formats.includes('IMAX 3D');
-    }
-    if (activeCategory === 'upcoming') {
-      return matchesSearch && matchesGenre && matchesLanguage && m.isUpcoming;
-    }
-    return matchesSearch && matchesGenre && matchesLanguage;
+    return 'seat_map';
   });
 
-  const featuredMovie = movies[0];
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('preview') || hash.includes('3d') || hash.includes('eye')) {
+        setCurrentScreen('seat_preview');
+      } else if (hash.includes('landing') || hash.includes('home') || hash.includes('movies')) {
+        setCurrentScreen('landing');
+      } else if (hash.includes('seat') || hash.includes('map')) {
+        setCurrentScreen('seat_map');
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
-  const handleBookingComplete = (booking: Booking) => {
-    const bookedIds = new Set(booking.seats.map((s) => s.id));
-    setCinemaSeats((prev) =>
-      prev.map((seat) => (bookedIds.has(seat.id) ? { ...seat, status: 'occupied' } : seat))
-    );
-    setActiveBooking(booking);
-    setCheckoutSeats(null);
+  // User Profile / Auth State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
+    name: 'Kaushal',
+    phone: '+91 98401 23456',
+    email: 'kaushalmaran@vels.in',
+    isLoggedIn: true,
+  });
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Checkout modal
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+
+  // Desktop view mode toggle (Mobile frame vs Fullscreen)
+  const [isFramed, setIsFramed] = useState(false); // default fullscreen so user sees everything clearly!
+
+  const selectedSeat = seats.find((s) => s.id === selectedSeatId) || null;
+
+  // Handle seat click in map
+  const handleSelectSeat = (seat: Seat) => {
+    if (seat.status === 'occupied') return;
+    if (selectedSeatId === seat.id) {
+      setSelectedSeatId(null);
+    } else {
+      setSelectedSeatId(seat.id);
+    }
   };
 
-  // 1. Confirmed ticket pass
-  if (activeBooking) {
-    return (
-      <TicketConfirmation
-        booking={activeBooking}
-        onDone={() => {
-          setActiveBooking(null);
-          setSelectedShowtime(null);
-          setSelectedMovie(null);
-        }}
-      />
-    );
-  }
+  // Continue to 3D Seat Preview
+  const handleContinueToPreview = () => {
+    if (selectedSeat) {
+      setCurrentScreen('seat_preview');
+    }
+  };
 
-  // 2. 3D seat selection
-  if (selectedMovie && selectedShowtime) {
+  // Return to Seat Map (Change Seat)
+  const handleBackToSeatMap = () => {
+    setCurrentScreen('seat_map');
+  };
+
+  // Select movie from Landing Page
+  const handleSelectMovieFromLanding = (movie: Movie) => {
+    setActiveMovie(movie);
+    setCurrentScreen('seat_map');
+  };
+
+  // Confirm Booking from Checkout
+  const handleConfirmBooking = (booking: Booking) => {
+    // Mark seat as occupied in live state
+    setSeats((prev) =>
+      prev.map((s) => (s.id === booking.seat.id ? { ...s, status: 'occupied' } : s))
+    );
+    setConfirmedBooking(booking);
+    setShowCheckout(false);
+    setCurrentScreen('confirmation');
+  };
+
+  // Render Inner Cinema Application Content
+  const renderAppContent = () => {
+    // 1. Landing Page
+    if (currentScreen === 'landing') {
+      return (
+        <LandingPage
+          onSelectMovie={handleSelectMovieFromLanding}
+          onOpenLogin={() => setShowLoginModal(true)}
+          currentUser={currentUser}
+        />
+      );
+    }
+
+    // 2. Booking Confirmation Pass
+    if (currentScreen === 'confirmation' && confirmedBooking) {
+      return (
+        <BookingConfirmation
+          booking={confirmedBooking}
+          onDone={() => {
+            setConfirmedBooking(null);
+            setCurrentScreen('seat_map');
+          }}
+        />
+      );
+    }
+
+    // 3. Seat-View Preview (STATE B) with 360° Drag Look-Around
+    if (currentScreen === 'seat_preview' && selectedSeat) {
+      return (
+        <SeatPreviewView
+          seats={seats}
+          seat={selectedSeat}
+          movie={activeMovie}
+          onBackToSeatMap={handleBackToSeatMap}
+          onBookSeat={() => setShowCheckout(true)}
+        />
+      );
+    }
+
+    // 4. Seat Selection (STATE A: Vels Theatres Chennai)
     return (
-      <>
-        <SeatSelectionView
-          movie={selectedMovie}
-          showtime={selectedShowtime}
-          seats={cinemaSeats}
-          onBack={() => setSelectedShowtime(null)}
-          onProceedToCheckout={(seats) => setCheckoutSeats(seats)}
+      <div className="relative w-full h-full bg-[#050505] flex flex-col justify-between overflow-hidden select-none">
+        {/* Top Header matching BookMyShow Vels Theatres */}
+        <CinemaHeader
+          movieTitle={`${activeMovie.title} - ${activeMovie.language}`}
+          theatreSubtitle={`${VELS_CINEMA_INFO.name} | ${VELS_CINEMA_INFO.date} | ${VELS_CINEMA_INFO.showtime}`}
+          showtimes={showtimes}
+          selectedShowtimeId={selectedShowtimeId}
+          onSelectShowtime={setSelectedShowtimeId}
+          onBackClick={() => setCurrentScreen('landing')}
+          onOpenLogin={() => setShowLoginModal(true)}
+          userName={currentUser?.name}
         />
 
-        {checkoutSeats && (
-          <CheckoutModal
-            movie={selectedMovie}
-            showtime={selectedShowtime}
-            seats={checkoutSeats}
-            onClose={() => setCheckoutSeats(null)}
-            onBookingComplete={handleBookingComplete}
+        {/* Interactive Scrollable Seat Map matching Vels Theatres */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+          <SeatMap
+            seats={seats}
+            selectedSeatId={selectedSeatId}
+            onSelectSeat={handleSelectSeat}
           />
-        )}
-      </>
-    );
-  }
 
-  // 3. Movie details
-  if (selectedMovie) {
-    return (
-      <MovieDetailsView
-        movie={selectedMovie}
-        showtimes={showtimes}
-        onSelectShowtime={(st) => setSelectedShowtime(st)}
-        onBack={() => setSelectedMovie(null)}
-      />
-    );
-  }
+          {/* Seat Legend matching BookMyShow */}
+          <SeatLegend />
+        </div>
 
-  // 4. Main catalogue view
+        {/* Bottom Booking Summary Bar */}
+        <SeatBottomBar
+          selectedSeat={selectedSeat}
+          onContinue={handleContinueToPreview}
+        />
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-[#0b0c0e] text-[#f3f4f6] flex flex-col font-sans selection:bg-[#24252b] selection:text-white">
-      {/* Top Navigation */}
-      <nav className="sticky top-0 z-40 bg-[#0b0c0e]/95 backdrop-blur-md border-b border-white/[0.08] px-6 md:px-12 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-10">
+    <div className="h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] flex flex-col items-center justify-center p-0 font-sans relative overflow-hidden">
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#55E6A5]/[0.02] rounded-full blur-3xl pointer-events-none" />
+
+      {/* Top Global Utility Bar (Home Navigation & Viewport Mode) */}
+      <div className="absolute top-3 right-3 z-50 flex items-center gap-2">
+        {currentScreen !== 'landing' && (
           <button
-            onClick={() => {
-              setSelectedMovie(null);
-              setSelectedShowtime(null);
-            }}
-            className="flex items-center gap-2.5 text-left group"
+            onClick={() => setCurrentScreen('landing')}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/90 border border-[#222222] hover:border-[#55E6A5] text-[#D0D0D0] hover:text-white transition text-[11px] font-medium shadow-lg cursor-pointer"
+            title="Go to Vels Theatres Landing Page"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#18191e] border border-white/[0.1] flex items-center justify-center text-zinc-300 group-hover:text-white transition-colors">
-              <Film className="w-4 h-4" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold tracking-wider text-white font-cinzel">
-                CINESCAPE
-              </span>
-              <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-500 uppercase tracking-wide">
-                auditorium
-              </span>
-            </div>
+            <Home className="w-3 h-3 text-[#55E6A5]" />
+            <span className="hidden sm:inline">Landing Page</span>
           </button>
+        )}
 
-          <div className="hidden md:flex items-center gap-1 text-xs font-medium">
-            <button
-              onClick={() => setActiveCategory('now_showing')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                activeCategory === 'now_showing'
-                  ? 'bg-[#1c1d22] text-white border border-white/[0.08]'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Now showing
-            </button>
-            <button
-              onClick={() => setActiveCategory('imax')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                activeCategory === 'imax'
-                  ? 'bg-[#1c1d22] text-white border border-white/[0.08]'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              IMAX 3D
-            </button>
-            <button
-              onClick={() => setActiveCategory('upcoming')}
-              className={`px-3 py-1.5 rounded-md transition-colors ${
-                activeCategory === 'upcoming'
-                  ? 'bg-[#1c1d22] text-white border border-white/[0.08]'
-                  : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-            >
-              Upcoming
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => setIsFramed(!isFramed)}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/90 border border-[#222222] hover:border-[#55E6A5] text-[#D0D0D0] hover:text-white transition text-[11px] font-medium shadow-lg cursor-pointer"
+          title={isFramed ? "Switch to Fullscreen Viewport" : "Switch to Centered Mobile Phone Frame"}
+        >
+          {isFramed ? (
+            <>
+              <Maximize2 className="w-3 h-3 text-[#55E6A5]" />
+              <span>Full Screen</span>
+            </>
+          ) : (
+            <>
+              <Smartphone className="w-3 h-3 text-[#55E6A5]" />
+              <span>Mobile Frame</span>
+            </>
+          )}
+        </button>
+      </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141519] border border-white/[0.06] text-xs text-zinc-400">
-            <MapPin className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Los Angeles • Downtown</span>
-          </div>
+      {/* Main Container: Adapts automatically to window height with zero clipping */}
+      <div
+        className={`w-full h-full flex flex-col transition-all duration-300 ${
+          isFramed
+            ? 'max-w-[440px] max-h-[96dvh] my-auto rounded-[36px] border border-[#222222] shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden'
+            : 'w-full h-full'
+        }`}
+      >
+        {renderAppContent()}
+      </div>
 
-          <button
-            onClick={() => setShowAdmin(true)}
-            className="px-3 py-1.5 rounded-lg bg-[#141519] hover:bg-[#1c1d22] border border-white/[0.08] text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Admin</span>
-          </button>
-        </div>
-      </nav>
+      {/* Checkout Modal */}
+      {showCheckout && selectedSeat && (
+        <CheckoutModal
+          seat={selectedSeat}
+          movie={activeMovie}
+          showtime={showtimes.find((s) => s.id === selectedShowtimeId)}
+          currentUser={currentUser}
+          onClose={() => setShowCheckout(false)}
+          onConfirmBooking={handleConfirmBooking}
+        />
+      )}
 
-      <main className="flex-1 pb-24">
-        {/* Featured Film Hero */}
-        <div className="relative h-[480px] md:h-[560px] w-full overflow-hidden bg-[#0e0f13] border-b border-white/[0.06]">
-          <img
-            src={featuredMovie.backdropUrl}
-            alt={featuredMovie.title}
-            className="w-full h-full object-cover object-center opacity-35"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-[#0b0c0e]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b0c0e] via-[#0b0c0e]/70 to-transparent" />
-
-          {/* Hero Content */}
-          <div className="absolute bottom-12 left-6 md:left-12 right-6 max-w-3xl space-y-4">
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-              <span className="px-2 py-0.5 rounded bg-white/[0.08] text-zinc-300 border border-white/[0.08]">
-                IMAX 70mm
-              </span>
-              <span>•</span>
-              <span>1.43:1 aspect ratio</span>
-              <span>•</span>
-              <span className="text-amber-400 font-medium">{featuredMovie.score} rating</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-medium text-white tracking-tight leading-none font-cinzel">
-              {featuredMovie.title}
-            </h1>
-
-            <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-xl">
-              {featuredMovie.description}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                onClick={() => {
-                  setSelectedMovie(featuredMovie);
-                  const st = showtimes.find((s) => s.movieId === featuredMovie.id);
-                  if (st) setSelectedShowtime(st);
-                }}
-                className="h-10 px-5 rounded-lg bg-white text-zinc-950 font-medium text-xs hover:bg-zinc-200 transition-colors flex items-center gap-2"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>3D seat preview & booking</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedMovie(featuredMovie)}
-                className="h-10 px-4 rounded-lg bg-[#18191e] hover:bg-[#202127] border border-white/[0.1] text-zinc-200 text-xs font-medium transition-colors"
-              >
-                View synopsis & times
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Spec Strip */}
-        <div className="max-w-6xl mx-auto px-6 md:px-12 -mt-4 relative z-10">
-          <div className="bg-[#121317] border border-white/[0.08] rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-white/[0.04] text-zinc-400 shrink-0">
-                <Compass className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="font-medium text-zinc-200">First-person sightline</h3>
-                <p className="text-zinc-500 text-[11px] mt-0.5">
-                  Real eye-level screen distance, vertical neck angle, and FOV preview before purchase.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 border-t md:border-t-0 md:border-l border-white/[0.06] pt-3 md:pt-0 md:pl-4">
-              <div className="p-2 rounded-lg bg-white/[0.04] text-zinc-400 shrink-0">
-                <Volume2 className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="font-medium text-zinc-200">Acoustic sweetspot</h3>
-                <p className="text-zinc-500 text-[11px] mt-0.5">
-                  Calibrated Dolby Atmos center channel and lateral surround sound balance ratings.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 border-t md:border-t-0 md:border-l border-white/[0.06] pt-3 md:pt-0 md:pl-4">
-              <div className="p-2 rounded-lg bg-white/[0.04] text-zinc-400 shrink-0">
-                <ShieldCheck className="w-4 h-4 text-zinc-400" />
-              </div>
-              <div>
-                <h3 className="font-medium text-zinc-200">Live seat hold</h3>
-                <p className="text-zinc-500 text-[11px] mt-0.5">
-                  Reserved seats lock immediately for 8 minutes to prevent duplicate bookings.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Search & Filter Toolbar */}
-        <div className="max-w-6xl mx-auto px-6 md:px-12 mt-12 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="relative w-full md:w-72">
-              <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search movies, directors..."
-                className="w-full bg-[#131418] border border-white/[0.08] pl-9 pr-3 py-2 rounded-lg text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-white/20 transition-colors"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-              {genres.map((genre) => (
-                <button
-                  key={genre}
-                  onClick={() => setSelectedGenre(genre)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                    selectedGenre === genre
-                      ? 'bg-[#22232a] text-white border border-white/[0.12]'
-                      : 'bg-[#131418] border border-white/[0.05] text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {genre}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Heading */}
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 pt-2">
-            <div>
-              <h2 className="text-base font-medium text-zinc-100">
-                {activeCategory === 'imax'
-                  ? 'IMAX 3D repertoire'
-                  : activeCategory === 'upcoming'
-                  ? 'Upcoming releases'
-                  : 'Now showing'}
-              </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Select a title to view showtimes and test eye-level 3D seating.
-              </p>
-            </div>
-            <span className="text-xs text-zinc-500 font-mono tabular-nums">
-              {filteredMovies.length} {filteredMovies.length === 1 ? 'title' : 'titles'}
-            </span>
-          </div>
-
-          {/* Movie Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-1">
-            {filteredMovies.map((movie) => (
-              <div
-                key={movie.id}
-                onClick={() => setSelectedMovie(movie)}
-                className="group cursor-pointer bg-[#121317] border border-white/[0.08] hover:border-white/[0.18] rounded-xl overflow-hidden transition-colors flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative aspect-[16/10] overflow-hidden bg-[#0c0d10]">
-                    <img
-                      src={movie.backdropUrl}
-                      alt={movie.title}
-                      className="w-full h-full object-cover object-center opacity-85 group-hover:opacity-100 transition-opacity"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#121317] via-transparent to-transparent" />
-
-                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-[#0b0c0e]/80 border border-white/[0.08] text-zinc-200 text-[11px] font-mono flex items-center gap-1">
-                      <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                      <span className="tabular-nums">{movie.score}</span>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-white/[0.1] text-zinc-300 text-[10px] font-mono">
-                        {movie.rating}
-                      </span>
-                      <span className="text-xs text-zinc-400 font-mono tabular-nums">
-                        {movie.duration}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 space-y-1.5">
-                    <span className="text-[11px] font-mono text-zinc-500 block">
-                      {movie.genres.join(' • ')}
-                    </span>
-                    <h3 className="text-sm font-medium text-white group-hover:text-zinc-200 transition-colors">
-                      {movie.title}
-                    </h3>
-                    <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
-                      {movie.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {movie.formats.map((fmt) => (
-                        <span
-                          key={fmt}
-                          className="px-2 py-0.5 rounded bg-[#17181e] border border-white/[0.06] text-[10px] font-mono text-zinc-400"
-                        >
-                          {fmt}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-4 py-3 bg-[#0f1013] border-t border-white/[0.06] flex items-center justify-between text-xs text-zinc-500">
-                  <span>Dir. {movie.director}</span>
-                  <span className="font-medium text-zinc-300 group-hover:text-white transition-colors flex items-center gap-1">
-                    <span>Showtimes & 3D</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-[#0b0c0e] border-t border-white/[0.06] py-10 px-6 text-center text-xs text-zinc-500 space-y-2">
-        <div className="flex items-center justify-center gap-2 text-zinc-400">
-          <Film className="w-3.5 h-3.5" />
-          <span className="font-cinzel text-xs tracking-wider text-zinc-300">
-            CINESCAPE
-          </span>
-        </div>
-        <p className="text-zinc-500">
-          Auditorium sightline simulation and digital ticket reservation.
-        </p>
-        <p className="text-[11px] text-zinc-600 font-mono">
-          WebGL Three.js procedural seating model
-        </p>
-      </footer>
-
-      {/* Admin Studio Drawer */}
-      {showAdmin && (
-        <AdminDashboard
-          movies={movies}
-          showtimes={showtimes}
-          seats={cinemaSeats}
-          onUpdateMovies={setMovies}
-          onUpdateShowtimes={setShowtimes}
-          onUpdateSeats={setCinemaSeats}
-          onClose={() => setShowAdmin(false)}
+      {/* Login Modal */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={(user) => setCurrentUser(user)}
         />
       )}
     </div>
