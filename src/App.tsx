@@ -216,7 +216,7 @@ export default function App() {
     const activeShowtime = showtimes.find((s) => s.id === selectedShowtimeId);
 
     return (
-      <div className="relative w-full h-full bg-[#050505] flex flex-col justify-between overflow-hidden select-none">
+      <div className="relative w-full h-full bg-[#0B0D12] flex flex-col justify-between overflow-hidden select-none">
         {/* Top Header with City, Multiplex & Showtime selector */}
         <CinemaHeader
           movieTitle={`${activeMovie.title} - ${activeMovie.language}`}
@@ -259,37 +259,34 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] flex flex-col items-center justify-center p-0 font-sans relative overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#55E6A5]/[0.02] rounded-full blur-3xl pointer-events-none" />
-
+    <div className="h-[100dvh] w-full bg-[#0B0D12] text-[#F0F1F4] flex flex-col items-center justify-center p-0 font-sans relative overflow-hidden">
       {/* Top Global Utility Bar (Home Navigation & Viewport Mode) */}
       <div className="absolute top-3 right-3 z-50 flex items-center gap-2">
         {currentScreen !== 'landing' && (
           <button
             onClick={() => setCurrentScreen('landing')}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/90 border border-[#222222] hover:border-[#55E6A5] text-[#D0D0D0] hover:text-white transition text-[11px] font-medium shadow-lg cursor-pointer"
-            title="Go to Movies Landing Page"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141822]/90 border border-white/[0.08] hover:border-white/[0.16] text-[#D1D5DF] hover:text-[#F0F1F4] transition text-[11px] font-normal cursor-pointer"
+            title="Go to movies catalogue"
           >
-            <Home className="w-3 h-3 text-[#55E6A5]" />
-            <span className="hidden sm:inline">Landing Page</span>
+            <Home className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Landing page</span>
           </button>
         )}
 
         <button
           onClick={() => setIsFramed(!isFramed)}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/90 border border-[#222222] hover:border-[#55E6A5] text-[#D0D0D0] hover:text-white transition text-[11px] font-medium shadow-lg cursor-pointer"
-          title={isFramed ? "Switch to Fullscreen Viewport" : "Switch to Centered Mobile Phone Frame"}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141822]/90 border border-white/[0.08] hover:border-white/[0.16] text-[#D1D5DF] hover:text-[#F0F1F4] transition text-[11px] font-normal cursor-pointer"
+          title={isFramed ? "Switch to fullscreen viewport" : "Switch to mobile frame"}
         >
           {isFramed ? (
             <>
-              <Maximize2 className="w-3 h-3 text-[#55E6A5]" />
-              <span>Full Screen</span>
+              <Maximize2 className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
+              <span>Full screen</span>
             </>
           ) : (
             <>
-              <Smartphone className="w-3 h-3 text-[#55E6A5]" />
-              <span>Mobile Frame</span>
+              <Smartphone className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
+              <span>Mobile frame</span>
             </>
           )}
         </button>
@@ -297,9 +294,9 @@ export default function App() {
 
       {/* Main Container: Adapts automatically to window height with zero clipping */}
       <div
-        className={`w-full h-full flex flex-col transition-all duration-300 ${
+        className={`w-full h-full flex flex-col transition-all duration-200 ${
           isFramed
-            ? 'max-w-[440px] max-h-[96dvh] my-auto rounded-[36px] border border-[#222222] shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden'
+            ? 'max-w-[440px] max-h-[96dvh] my-auto rounded-[32px] border border-white/[0.08] overflow-hidden'
             : 'w-full h-full'
         }`}
       >

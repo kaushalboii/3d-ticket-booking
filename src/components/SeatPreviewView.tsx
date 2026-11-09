@@ -21,9 +21,7 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
   onBackToSeatMap,
   onBookSeat,
 }) => {
-  // Phase starts with brief 0.5s overhead swoop into seat, matching video frame 00:02 -> 00:03
   const [viewPhase, setViewPhase] = useState<'transition' | 'eye_level'>('transition');
-  // Full cinema mode: allows user to hide the drawer completely to admire the full screen
   const [isFullCinemaView, setIsFullCinemaView] = useState(false);
 
   useEffect(() => {
@@ -34,7 +32,7 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
   }, [seat.id]);
 
   return (
-    <div className="relative w-full h-full bg-[#050505] flex flex-col justify-between overflow-hidden select-none">
+    <div className="relative w-full h-full bg-[#0B0D12] flex flex-col justify-between overflow-hidden select-none">
       {/* 3D Auditorium & Cinema Screen Viewport */}
       <div className="absolute inset-0 z-0">
         <Auditorium3DView
@@ -45,25 +43,25 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
         />
       </div>
 
-      {/* Top Floating Navigation matching video */}
-      <div className="relative z-20 w-full flex items-center justify-between px-5 pt-3 pointer-events-none">
+      {/* Top Floating Navigation */}
+      <div className="relative z-20 w-full flex items-center justify-between px-6 pt-3.5 pointer-events-none">
         {/* Back Button */}
         <button
           onClick={onBackToSeatMap}
-          className="pointer-events-auto w-9 h-9 rounded-full bg-[#111111]/90 border border-[#222222] text-[#F5F5F5] flex items-center justify-center hover:bg-[#1A1A1A] transition active:scale-95 shadow-md cursor-pointer"
-          aria-label="Back to Seat Map"
+          className="pointer-events-auto w-8 h-8 rounded-full bg-[#0B0D12]/90 backdrop-blur-md border border-white/[0.08] text-[#F0F1F4] flex items-center justify-center hover:bg-[#141822] transition active:scale-95 cursor-pointer"
+          aria-label="Back to seat map"
         >
-          <ChevronLeft className="w-4 h-4 text-[#CCCCCC]" />
+          <ChevronLeft className="w-4 h-4 text-[#A3A9B8]" strokeWidth={1.5} />
         </button>
 
         {/* View from [Seat] Pill */}
-        <div className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#111111]/85 border border-[#222222] shadow-lg">
+        <div className="pointer-events-auto flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0B0D12]/90 backdrop-blur-md border border-white/[0.08]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#55E6A5]" />
-          <span className="text-xs font-medium text-[#E5E5E5] tracking-tight">
+          <span className="text-xs font-medium text-[#F0F1F4] tracking-tight">
             View from {seat.id}
           </span>
           {movie && (
-            <span className="hidden sm:inline text-[11px] text-[#888888] font-normal">
+            <span className="hidden sm:inline text-[11px] text-[#7A8296] font-normal">
               · {movie.title}
             </span>
           )}
@@ -72,19 +70,19 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
         {/* Fullscreen 3D View Toggle Button */}
         <button
           onClick={() => setIsFullCinemaView(!isFullCinemaView)}
-          className="pointer-events-auto w-9 h-9 rounded-full bg-[#111111]/90 border border-[#222222] text-[#F5F5F5] flex items-center justify-center hover:bg-[#1A1A1A] transition active:scale-95 shadow-md cursor-pointer"
-          title={isFullCinemaView ? "Show Information Drawer" : "Full Screen Cinema View"}
-          aria-label="Toggle Full Cinema View"
+          className="pointer-events-auto w-8 h-8 rounded-full bg-[#0B0D12]/90 backdrop-blur-md border border-white/[0.08] text-[#F0F1F4] flex items-center justify-center hover:bg-[#141822] transition active:scale-95 cursor-pointer"
+          title={isFullCinemaView ? "Show details sheet" : "Expand screen view"}
+          aria-label="Toggle full view"
         >
           {isFullCinemaView ? (
-            <EyeOff className="w-3.5 h-3.5 text-[#55E6A5]" />
+            <EyeOff className="w-3.5 h-3.5 text-[#55E6A5]" strokeWidth={1.5} />
           ) : (
-            <Eye className="w-3.5 h-3.5 text-[#CCCCCC]" />
+            <Eye className="w-3.5 h-3.5 text-[#A3A9B8]" strokeWidth={1.5} />
           )}
         </button>
       </div>
 
-      {/* Bottom Info Drawer (Slides up when in eye level view, or can be toggled) */}
+      {/* Bottom Info Drawer */}
       {!isFullCinemaView && (
         <div className="relative z-20 w-full mt-auto">
           <SeatInfoDrawer
@@ -96,20 +94,20 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
         </div>
       )}
 
-      {/* When in Full Cinema View: Minimal floating bottom bar to Book or Return */}
+      {/* Full Cinema Mode Minimal Bottom Strip */}
       {isFullCinemaView && (
-        <div className="relative z-20 w-full px-5 pb-5 flex items-center justify-between gap-3 pointer-events-auto">
+        <div className="relative z-20 w-full px-6 pb-6 flex items-center justify-between gap-3 pointer-events-auto">
           <button
             onClick={() => setIsFullCinemaView(false)}
-            className="px-4 py-2.5 rounded-full bg-[#111111]/90 border border-[#222222] text-xs font-medium text-[#E5E5E5] backdrop-blur-md shadow-lg"
+            className="px-4 py-2 rounded-full bg-[#0B0D12]/90 border border-white/[0.08] text-xs font-normal text-[#D1D5DF] backdrop-blur-md cursor-pointer hover:bg-[#141822] transition"
           >
-            Show Details
+            Show optical metrics
           </button>
           <button
             onClick={onBookSeat}
-            className="px-6 py-2.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold shadow-lg shadow-white/20 active:scale-95 transition"
+            className="px-5 py-2 rounded-full bg-[#55E6A5] text-[#07130E] text-xs font-medium cursor-pointer hover:brightness-105 active:scale-[0.98] transition shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
           >
-            Book · {currency}{seat.price}
+            Book seat ({currency}{seat.price})
           </button>
         </div>
       )}

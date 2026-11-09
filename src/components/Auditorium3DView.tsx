@@ -466,31 +466,31 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     <div className="w-full h-full relative overflow-hidden bg-[#050505] select-none">
       <div ref={mountRef} className="w-full h-full block" />
 
-      {/* Floating 360° Drag Look-Around Guide (Softly fades after interaction) */}
+      {/* 360° Look-Around HUD (Quiet chrome) */}
       {!hasInteracted ? (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex items-center gap-2 bg-[#0A0A0A]/90 backdrop-blur-md border border-[#222222] px-3.5 py-1.5 rounded-full shadow-xl transition-opacity duration-300">
-          <Compass className="w-3.5 h-3.5 text-[#55E6A5]" />
-          <span className="text-[11px] text-[#D5D5D5] font-medium">
-            Drag to look around in 360° • Scroll to zoom
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex items-center gap-2 bg-[#0E1118]/90 backdrop-blur-md border border-white/[0.08] px-3.5 py-1.5 rounded-full transition-opacity duration-300">
+          <Compass className="w-3.5 h-3.5 text-[#55E6A5]" strokeWidth={1.5} />
+          <span className="text-[11px] text-[#A3A9B8] font-normal">
+            Drag to look around in 360° · Scroll to zoom
           </span>
         </div>
       ) : (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-[#0A0A0A]/90 backdrop-blur-md border border-[#222222] p-1 rounded-full shadow-xl">
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-[#0E1118]/90 backdrop-blur-md border border-white/[0.08] p-1 rounded-full">
           <button
             onClick={handleResetLookAround}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#161616] hover:bg-[#222222] text-[#D0D0D0] hover:text-[#55E6A5] text-[10px] font-semibold transition cursor-pointer"
-            title="Reset to Screen Center View"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#D1D5DF] hover:text-[#55E6A5] text-[11px] font-normal transition cursor-pointer"
+            title="Reset to screen center"
           >
-            <RotateCcw className="w-3 h-3 text-[#55E6A5]" />
-            <span>Reset Front</span>
+            <RotateCcw className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
+            <span>Reset front</span>
           </button>
           <button
             onClick={() => {
               lookAroundRef.current.zoom = Math.min(12, lookAroundRef.current.zoom + 2);
               setHasInteracted(true);
             }}
-            className="w-6 h-6 rounded-full bg-[#161616] hover:bg-[#222222] text-[#CCCCCC] hover:text-[#55E6A5] flex items-center justify-center text-xs font-bold transition cursor-pointer"
-            title="Zoom In"
+            className="w-6 h-6 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#A3A9B8] hover:text-[#F0F1F4] flex items-center justify-center text-xs font-mono transition cursor-pointer"
+            title="Zoom in"
           >
             +
           </button>
@@ -499,8 +499,8 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
               lookAroundRef.current.zoom = Math.max(-8, lookAroundRef.current.zoom - 2);
               setHasInteracted(true);
             }}
-            className="w-6 h-6 rounded-full bg-[#161616] hover:bg-[#222222] text-[#CCCCCC] hover:text-[#55E6A5] flex items-center justify-center text-xs font-bold transition cursor-pointer"
-            title="Zoom Out"
+            className="w-6 h-6 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#A3A9B8] hover:text-[#F0F1F4] flex items-center justify-center text-xs font-mono transition cursor-pointer"
+            title="Zoom out"
           >
             -
           </button>

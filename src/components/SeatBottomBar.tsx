@@ -14,28 +14,28 @@ export const SeatBottomBar: React.FC<SeatBottomBarProps> = ({
   onContinue,
 }) => {
   return (
-    <div className="w-full bg-[#050505] border-t border-[#141414] px-5 py-3.5 flex items-center justify-between select-none">
+    <div className="w-full bg-[#0B0D12] border-t border-white/[0.08] px-6 py-3.5 flex items-center justify-between select-none">
       {/* Left Details */}
       <div>
         {selectedSeat ? (
           <div className="flex flex-col">
-            <span className="text-[#F5F5F5] font-bold text-sm tracking-tight flex items-center gap-1.5">
+            <span className="text-[#F0F1F4] font-medium text-sm tracking-tight flex items-center gap-2">
               <span>Row {selectedSeat.row}, Seat {selectedSeat.number}</span>
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#55E6A5]/15 text-[#55E6A5]">
-                {selectedSeat.tier}
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-[#A3A9B8]">
+                {selectedSeat.tier.toUpperCase()}
               </span>
             </span>
-            <span className="text-[#888888] text-xs font-normal mt-0.5">
-              {currency}{selectedSeat.price} · {selectedSeat.metrics.category}
+            <span className="text-[#7A8296] text-xs font-normal mt-0.5 font-mono">
+              {currency}{selectedSeat.price} · {selectedSeat.metrics.category.toLowerCase()}
             </span>
           </div>
         ) : (
           <div className="flex flex-col">
-            <span className="text-[#E0E0E0] text-sm font-medium">
-              Choose your seat
+            <span className="text-[#D1D5DF] text-sm font-normal">
+              Select a seat
             </span>
-            <span className="text-[#666666] text-[11px]">
-              Tap any available seat above
+            <span className="text-[#5C6479] text-xs">
+              Tap any available circle above
             </span>
           </div>
         )}
@@ -45,15 +45,15 @@ export const SeatBottomBar: React.FC<SeatBottomBarProps> = ({
       <button
         disabled={!selectedSeat}
         onClick={onContinue}
-        className={`px-5 sm:px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+        className={`px-5 sm:px-6 py-2.5 rounded-full text-xs font-medium transition flex items-center gap-2 ${
           selectedSeat
-            ? 'bg-[#55E6A5] text-[#050505] shadow-lg shadow-[#55E6A5]/25 hover:brightness-105 active:scale-95 cursor-pointer'
-            : 'bg-[#181818] text-[#444444] border border-[#222222] cursor-not-allowed'
+            ? 'bg-[#55E6A5] text-[#07130E] hover:brightness-105 active:scale-[0.98] cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
+            : 'bg-[#141822] text-[#5C6479] border border-white/[0.06] cursor-not-allowed'
         }`}
       >
-        <Eye className="w-3.5 h-3.5" />
-        <span>Preview 3D Sightline</span>
-        <ArrowRight className="w-3 h-3 hidden sm:inline" />
+        <Eye className="w-3.5 h-3.5" strokeWidth={1.5} />
+        <span>Preview 3D sightline</span>
+        <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" strokeWidth={1.5} />
       </button>
     </div>
   );

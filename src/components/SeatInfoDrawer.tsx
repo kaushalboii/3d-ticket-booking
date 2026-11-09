@@ -21,72 +21,67 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="w-full bg-[#111111] border-t border-[#1C1C1C] rounded-t-3xl px-5 pt-2.5 pb-5 flex flex-col shadow-2xl select-none transition-all duration-300">
-      {/* Top Drag Handle (Clickable to Collapse / Expand to see full cinema screen) */}
+    <div className="w-full bg-[#0E1118] border-t border-white/[0.08] rounded-t-3xl px-6 pt-3 pb-6 flex flex-col select-none transition-all duration-200">
+      {/* Top Drag Handle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-center py-1 group cursor-pointer"
-        title={collapsed ? "Expand Information Sheet" : "Minimize to View Full Cinema Screen"}
+        className="w-full flex items-center justify-center py-1 cursor-pointer group"
+        title={collapsed ? "Expand details" : "Collapse details"}
       >
-        <div className="flex items-center gap-1">
-          <div className="w-9 h-1 rounded-full bg-[#2E2E2E] group-hover:bg-[#555555] transition" />
-        </div>
+        <div className="w-8 h-1 rounded-full bg-white/[0.12] group-hover:bg-white/[0.24] transition" />
       </button>
 
-      {/* When Collapsed: Sleek compact strip */}
+      {/* When Collapsed: Compact strip */}
       {collapsed ? (
-        <div className="flex items-center justify-between py-1.5">
+        <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-bold text-[#55E6A5]">
+            <span className="text-xs font-mono font-medium text-[#55E6A5]">
               Row {seat.row}, Seat {seat.number}
             </span>
-            <span className="text-[11px] text-[#888888]">
-              · {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} ({currency}{seat.price})
+            <span className="text-[11px] text-[#7A8296] font-mono">
+              · {seat.tier.toUpperCase()} ({currency}{seat.price})
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCollapsed(false)}
-              className="text-[11px] text-[#888888] hover:text-[#F5F5F5] flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1A1A1A] border border-[#262626]"
+              className="text-[11px] text-[#A3A9B8] hover:text-[#F0F1F4] flex items-center gap-1 px-3 py-1 rounded-full bg-[#141822] border border-white/[0.08] cursor-pointer"
             >
-              <span>Details</span>
-              <ChevronUp className="w-3 h-3" />
+              <span>Metrics</span>
+              <ChevronUp className="w-3 h-3" strokeWidth={1.5} />
             </button>
             <button
               onClick={onBookSeat}
-              className="px-4 py-1.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold shadow-md"
+              className="px-4 py-1.5 rounded-full bg-[#55E6A5] text-[#07130E] text-xs font-medium cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
             >
               Book · {currency}{seat.price}
             </button>
           </div>
         </div>
       ) : (
-        /* Expanded State: Exact match to reference screenshot */
+        /* Expanded State */
         <>
           {/* Top Seat Title & Mini Map */}
-          <div className="flex items-start justify-between mb-3.5 mt-1">
+          <div className="flex items-start justify-between mb-4 mt-2">
             <div>
-              {/* Category Tag */}
-              <span className="text-[10px] uppercase font-bold tracking-[0.15em] text-[#888888] block mb-0.5">
-                {metrics.category}
+              <span className="text-[10px] font-mono text-[#7A8296] block mb-1">
+                {metrics.category.toLowerCase()}
               </span>
 
-              {/* Seat Title */}
-              <h2 className="text-[#F5F5F5] font-bold text-lg tracking-tight">
+              <h2 className="text-[#F0F1F4] font-medium text-lg tracking-tight">
                 Row {seat.row}, Seat {seat.number}
               </h2>
 
-              {/* Tier & Price */}
-              <p className="text-[#929292] text-xs font-normal mt-0.5">
-                {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} · {currency}{seat.price}
+              <p className="text-[#7A8296] text-xs font-normal mt-0.5 font-mono">
+                {seat.tier.toUpperCase()} · {currency}{seat.price}
               </p>
             </div>
 
-            {/* Mini Seat Map Graphic (Right side of drawer matching screenshot) */}
-            <div className="p-2 rounded-xl bg-[#0B0B0B] border border-[#1A1A1A] flex flex-col items-center">
+            {/* Mini Seat Map Graphic */}
+            <div className="p-2.5 rounded-xl bg-[#141822] border border-white/[0.08] flex flex-col items-center">
               {/* Mini Screen arc */}
-              <div className="w-12 h-1 rounded-full bg-[#444444]/60 mb-1.5" />
+              <div className="w-12 h-0.5 rounded-full bg-white/[0.2] mb-1.5" />
 
               {/* Mini Seat Matrix */}
               <div className="grid grid-cols-7 gap-1">
@@ -97,7 +92,6 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
                   const rowChar = seat.row.charCodeAt(0) - 65;
                   const normalizedR = Math.min(3, Math.floor(rowChar / 2.5));
                   const normalizedC = Math.min(6, Math.floor((seat.number - 1) / 2));
-
                   const isMatch = rIdx === normalizedR && cIdx === normalizedC;
 
                   return (
@@ -105,8 +99,8 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
                       key={i}
                       className={`w-1 h-1 rounded-full ${
                         isMatch
-                          ? 'bg-[#55E6A5] scale-125 shadow-sm shadow-[#55E6A5]'
-                          : 'bg-[#262626]'
+                          ? 'bg-[#55E6A5] scale-125'
+                          : 'bg-white/[0.12]'
                       }`}
                     />
                   );
@@ -115,51 +109,51 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
             </div>
           </div>
 
-          {/* 3 Metric Cards */}
-          <div className="grid grid-cols-3 gap-2.5 mb-4">
+          {/* 3 Optical Metric Cards */}
+          <div className="grid grid-cols-3 gap-2.5 mb-5">
             {/* Metric 1: Distance */}
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-3 flex flex-col justify-between">
-              <span className="text-[#F5F5F5] font-bold text-base tracking-tight font-mono">
+            <div className="bg-[#141822] border border-white/[0.08] rounded-2xl p-3 flex flex-col justify-between">
+              <span className="text-[#F0F1F4] font-mono text-base font-medium">
                 {metrics.distanceMeters.toFixed(1)} m
               </span>
-              <span className="text-[#777777] text-[10px] font-normal mt-0.5">
-                to screen
+              <span className="text-[#7A8296] text-[10px] font-normal mt-0.5">
+                distance to screen
               </span>
             </div>
 
             {/* Metric 2: Field of View */}
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-3 flex flex-col justify-between">
-              <span className="text-[#F5F5F5] font-bold text-base tracking-tight font-mono">
+            <div className="bg-[#141822] border border-white/[0.08] rounded-2xl p-3 flex flex-col justify-between">
+              <span className="text-[#F0F1F4] font-mono text-base font-medium">
                 {metrics.fovDegrees}°
               </span>
-              <span className="text-[#777777] text-[10px] font-normal mt-0.5">
+              <span className="text-[#7A8296] text-[10px] font-normal mt-0.5">
                 field of view
               </span>
             </div>
 
             {/* Metric 3: Offset from Center */}
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-3 flex flex-col justify-between">
-              <span className="text-[#F5F5F5] font-bold text-base tracking-tight font-mono">
+            <div className="bg-[#141822] border border-white/[0.08] rounded-2xl p-3 flex flex-col justify-between">
+              <span className="text-[#F0F1F4] font-mono text-base font-medium">
                 {metrics.offsetMeters.toFixed(1)} m
               </span>
-              <span className="text-[#777777] text-[10px] font-normal mt-0.5 truncate">
+              <span className="text-[#7A8296] text-[10px] font-normal mt-0.5 truncate">
                 {metrics.offsetDirection}
               </span>
             </div>
           </div>
 
           {/* Action Buttons: Change Seat & Book */}
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={onChangeSeat}
-              className="w-full py-3 rounded-full bg-[#161616] border border-[#262626] text-[#F5F5F5] hover:bg-[#202020] hover:border-[#333333] text-xs font-semibold transition active:scale-95 cursor-pointer"
+              className="w-full py-2.5 rounded-full bg-[#141822] border border-white/[0.08] text-[#D1D5DF] hover:bg-[#1C2230] text-xs font-normal transition active:scale-[0.98] cursor-pointer"
             >
               Change seat
             </button>
 
             <button
               onClick={onBookSeat}
-              className="w-full py-3 rounded-full bg-white text-[#0A0A0A] hover:bg-[#F0F0F0] text-xs font-bold transition active:scale-95 cursor-pointer shadow-lg shadow-white/10"
+              className="w-full py-2.5 rounded-full bg-[#55E6A5] text-[#07130E] hover:brightness-105 active:scale-[0.98] text-xs font-medium transition cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
             >
               Book · {currency}{seat.price}
             </button>

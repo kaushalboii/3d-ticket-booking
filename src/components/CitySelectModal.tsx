@@ -15,28 +15,28 @@ export const CitySelectModal: React.FC<CitySelectModalProps> = ({
   onClose,
 }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm select-none animate-fade-in">
-      <div className="w-full max-w-sm bg-[#111111] border border-[#222222] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm select-none">
+      <div className="w-full max-w-sm bg-[#0E1118] border border-white/[0.08] rounded-3xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#1C1C1C] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#55E6A5]/15 border border-[#55E6A5]/30 flex items-center justify-center text-[#55E6A5]">
-              <Globe className="w-3.5 h-3.5" />
+        <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[#141822] border border-white/[0.08] flex items-center justify-center text-[#55E6A5]">
+              <Globe className="w-3.5 h-3.5" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-[#F5F5F5] font-semibold text-sm">
-                Select Your Region
+              <h3 className="text-[#F0F1F4] font-medium text-sm">
+                Select territory
               </h3>
-              <p className="text-[#888888] text-[11px]">
-                Global Cinema & 3D Booking Network
+              <p className="text-[#7A8296] text-[11px]">
+                Cinema sightline network
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-[#1A1A1A] text-[#888888] hover:text-[#F5F5F5] flex items-center justify-center"
+            className="w-7 h-7 rounded-full bg-[#141822] text-[#7A8296] hover:text-[#F0F1F4] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -51,33 +51,33 @@ export const CitySelectModal: React.FC<CitySelectModalProps> = ({
                   onSelectCity(city);
                   onClose();
                 }}
-                className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
+                className={`w-full p-3.5 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? 'bg-[#55E6A5]/10 border-[#55E6A5] text-white shadow-md'
-                    : 'bg-[#0E0E0E] border-[#202020] hover:border-[#333333] hover:bg-[#161616] text-[#D0D0D0]'
+                    ? 'bg-[#1C2230] border-[#55E6A5]/50 text-white'
+                    : 'bg-[#141822] border-white/[0.08] hover:border-white/[0.16] hover:bg-[#1A202D] text-[#D1D5DF]'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{city.flag}</span>
                   <div>
-                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <h4 className="text-xs font-medium text-[#F0F1F4] flex items-center gap-1.5">
                       <span>{city.name}</span>
-                      <span className="text-[10px] text-[#777777] font-normal">
+                      <span className="text-[10px] text-[#7A8296] font-normal">
                         ({city.country})
                       </span>
                     </h4>
-                    <p className="text-[10px] text-[#888888]">
-                      {city.theatresCount} Multiplexes & IMAX Theatres
+                    <p className="text-[11px] text-[#7A8296] mt-0.5">
+                      {city.theatresCount} multiplexes
                     </p>
                   </div>
                 </div>
 
                 {isSelected ? (
-                  <div className="w-5 h-5 rounded-full bg-[#55E6A5] text-[#050505] flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-[#55E6A5] text-[#07130E] flex items-center justify-center">
                     <Check className="w-3 h-3 stroke-[3]" />
                   </div>
                 ) : (
-                  <MapPin className="w-3.5 h-3.5 text-[#555555]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#5C6479]" strokeWidth={1.5} />
                 )}
               </button>
             );
@@ -87,4 +87,3 @@ export const CitySelectModal: React.FC<CitySelectModalProps> = ({
     </div>
   );
 };
-
