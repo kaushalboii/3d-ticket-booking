@@ -4,11 +4,13 @@ import { Eye, ArrowRight } from 'lucide-react';
 
 interface SeatBottomBarProps {
   selectedSeat: Seat | null;
+  currency?: string;
   onContinue: () => void;
 }
 
 export const SeatBottomBar: React.FC<SeatBottomBarProps> = ({
   selectedSeat,
+  currency = '₹',
   onContinue,
 }) => {
   return (
@@ -24,7 +26,7 @@ export const SeatBottomBar: React.FC<SeatBottomBarProps> = ({
               </span>
             </span>
             <span className="text-[#888888] text-xs font-normal mt-0.5">
-              ₹{selectedSeat.price} · {selectedSeat.metrics.category}
+              {currency}{selectedSeat.price} · {selectedSeat.metrics.category}
             </span>
           </div>
         ) : (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Showtime } from '../types';
-import { ChevronLeft, Ticket, Edit3, User, Sparkles } from 'lucide-react';
+import { ChevronLeft, Ticket, Edit3, User, Sparkles, ChevronDown } from 'lucide-react';
 
 interface CinemaHeaderProps {
   movieTitle: string;
@@ -12,6 +12,7 @@ interface CinemaHeaderProps {
   onSelectDate?: (date: string) => void;
   onBackClick?: () => void;
   onOpenLogin?: () => void;
+  onOpenTheatreSelect?: () => void;
   userName?: string;
   currentStep?: 1 | 2 | 3 | 4;
 }
@@ -26,6 +27,7 @@ export const CinemaHeader: React.FC<CinemaHeaderProps> = ({
   onSelectDate,
   onBackClick,
   onOpenLogin,
+  onOpenTheatreSelect,
   userName,
   currentStep = 2,
 }) => {
@@ -51,14 +53,28 @@ export const CinemaHeader: React.FC<CinemaHeaderProps> = ({
           <ChevronLeft className="w-4 h-4 text-[#CCCCCC]" />
         </button>
 
-        {/* Center Title and Subtitle matching BookMyShow */}
-        <div className="flex flex-col items-center text-center px-2 flex-1 max-w-[280px]">
+        {/* Center Title and Subtitle with Theatre Dropdown */}
+        <div className="flex flex-col items-center text-center px-2 flex-1 max-w-[300px]">
           <h1 className="text-[#F5F5F5] font-bold text-sm tracking-tight leading-tight truncate w-full">
             {movieTitle}
           </h1>
-          <p className="text-[#888888] text-[10px] font-normal mt-0.5 truncate w-full">
-            {theatreSubtitle}
-          </p>
+
+          {onOpenTheatreSelect ? (
+            <button
+              onClick={onOpenTheatreSelect}
+              className="group flex items-center justify-center gap-1 text-[#888888] hover:text-[#55E6A5] text-[10px] font-normal mt-0.5 truncate w-full cursor-pointer transition"
+              title="Click to Switch Multiplex / Theatre"
+            >
+              <span className="truncate underline decoration-dotted underline-offset-2">
+                {theatreSubtitle}
+              </span>
+              <ChevronDown className="w-3 h-3 text-[#55E6A5] shrink-0 group-hover:translate-y-0.5 transition" />
+            </button>
+          ) : (
+            <p className="text-[#888888] text-[10px] font-normal mt-0.5 truncate w-full">
+              {theatreSubtitle}
+            </p>
+          )}
         </div>
 
         {/* Right Ticket Button / Profile */}

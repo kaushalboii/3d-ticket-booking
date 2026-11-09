@@ -6,12 +6,18 @@ interface SeatMapProps {
   seats: Seat[];
   selectedSeatId: string | null;
   onSelectSeat: (seat: Seat) => void;
+  eliteTierLabel?: string;
+  economyTierLabel?: string;
+  currency?: string;
 }
 
 export const SeatMap: React.FC<SeatMapProps> = ({
   seats,
   selectedSeatId,
   onSelectSeat,
+  eliteTierLabel = '₹190 ELITE',
+  economyTierLabel = '₹190 ECONOMY',
+  currency = '₹',
 }) => {
   const eliteRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
   const economyRows = ['J'];
@@ -143,10 +149,10 @@ export const SeatMap: React.FC<SeatMapProps> = ({
           <ScreenArc />
         </div>
 
-        {/* ₹190 ELITE Category Header */}
+        {/* Elite Category Header */}
         <div className="w-full text-center py-2 mb-1">
           <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#888888]">
-            ₹190 ELITE
+            {eliteTierLabel}
           </span>
           <div className="w-3/4 max-w-[360px] h-[1px] bg-gradient-to-r from-transparent via-[#2A2A2A] to-transparent mx-auto mt-1" />
         </div>
@@ -156,10 +162,10 @@ export const SeatMap: React.FC<SeatMapProps> = ({
           {eliteRows.map((r) => renderRow(r))}
         </div>
 
-        {/* ₹190 ECONOMY Category Header */}
+        {/* Economy Category Header */}
         <div className="w-full text-center py-2 mb-1">
           <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#888888]">
-            ₹190 ECONOMY
+            {economyTierLabel}
           </span>
           <div className="w-3/4 max-w-[360px] h-[1px] bg-gradient-to-r from-transparent via-[#2A2A2A] to-transparent mx-auto mt-1" />
         </div>

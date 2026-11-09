@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { generateVelsTheatresSeats, VELS_SHOWTIMES, VELS_CINEMA_INFO, MOVIES_LIST } from './data/velsData';
-import { Seat, Showtime, Movie, Booking, UserProfile } from './types';
+import { generateTheatreSeats, THEATRES_LIST, CITIES_LIST, MOVIES_LIST } from './data/velsData';
+import { Seat, Showtime, Movie, Booking, UserProfile, Theatre, City } from './types';
 import { CinemaHeader } from './components/CinemaHeader';
 import { ScreenArc } from './components/ScreenArc';
 import { SeatMap } from './components/SeatMap';
@@ -11,12 +11,19 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { BookingConfirmation } from './components/BookingConfirmation';
 import { LandingPage } from './components/LandingPage';
 import { LoginModal } from './components/LoginModal';
-import { Smartphone, Maximize2, Home, Film } from 'lucide-react';
+import { CitySelectModal } from './components/CitySelectModal';
+import { TheatreSelectModal } from './components/TheatreSelectModal';
+import { Smartphone, Maximize2, Home, Film, Globe } from 'lucide-react';
 
 export default function App() {
-  const [seats, setSeats] = useState<Seat[]>(() => generateVelsTheatresSeats());
-  const [showtimes, setShowtimes] = useState<Showtime[]>(VELS_SHOWTIMES);
-  const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>('st-4'); // '11:10 PM'
+  // Global Platform State: Current City & Multiplex
+  const [currentCity, setCurrentCity] = useState<string>('Chennai');
+  const [currentTheatre, setCurrentTheatre] = useState<Theatre>(THEATRES_LIST[0]);
+
+  // Seating & Showtimes dynamically generated for the active Theatre
+  const [seats, setSeats] = useState<Seat[]>(() => generateTheatreSeats(THEATRES_LIST[0]));
+  const [showtimes, setShowtimes] = useState<Showtime[]>(THEATRES_LIST[0].showtimes);
+  const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>(THEATRES_LIST[0].showtimes[0].id);
   const [selectedDate, setSelectedDate] = useState<string>('Mon, 09 Nov, 2026');
   const [activeMovie, setActiveMovie] = useState<Movie>(MOVIES_LIST[0]); // 'Scene - Tamil'
 
@@ -36,6 +43,24 @@ export default function App() {
     }
     return 'landing'; // Default entry point is the clean movie catalogue!
   });
+
+  // Modal Dialogs
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [showTheatreModal, setShowTheatreModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+
+  // User Profile / Auth State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
+    name: 'Kaushal',
+    phone: '+91 98401 23456',
+    email: 'kaushalmaran@vels.in',
+    isLoggedIn: true,
+  });
+
+  // Desktop view mode toggle (Mobile frame vs Fullscreen)
+  const [isFramed, setIsFramed] = useState(false); // default fullscreen so user sees everything clearly!
 
   // Keep URL hash in sync with current screen for browser back/forward and bookmarking
   useEffect(() => {
@@ -66,23 +91,27 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // User Profile / Auth State
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    name: 'Kaushal',
-    phone: '+91 98401 23456',
-    email: 'kaushalmaran@vels.in',
-    isLoggedIn: true,
-  });
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  // Checkout modal
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
-
-  // Desktop view mode toggle (Mobile frame vs Fullscreen)
-  const [isFramed, setIsFramed] = useState(false); // default fullscreen so user sees everything clearly!
-
   const selectedSeat = seats.find((s) => s.id === selectedSeatId) || null;
+
+  // Handle theatre switch
+  const handleSelectTheatre = (theatre: Theatre) => {
+    setCurrentTheatre(theatre);
+    setCurrentCity(theatre.city);
+    setSeats(generateTheatreSeats(theatre));
+    setShowtimes(theatre.showtimes);
+    setSelectedShowtimeId(theatre.showtimes[0]?.id || 'st-1');
+  };
+
+  // Handle city switch
+  const handleSelectCity = (city: City) => {
+    setCurrentCity(city.name);
+    const firstTheatreInCity = THEATRES_LIST.find(
+      (th) => th.city.toLowerCase() === city.name.toLowerCase()
+    );
+    if (firstTheatreInCity) {
+      handleSelectTheatre(firstTheatreInCity);
+    }
+  };
 
   // Handle seat click in map
   const handleSelectSeat = (seat: Seat) => {
@@ -106,9 +135,16 @@ export default function App() {
     setCurrentScreen('seat_map');
   };
 
-  // Select movie from Landing Page
+  // Select movie from Landing Page: opens theatre & showtime picker for that movie
   const handleSelectMovieFromLanding = (movie: Movie) => {
     setActiveMovie(movie);
+    setShowTheatreModal(true);
+  };
+
+  // Choose theatre and showtime from modal: jumps straight into Seat Map
+  const handleSelectTheatreAndShowtime = (theatre: Theatre, showtime: Showtime) => {
+    handleSelectTheatre(theatre);
+    setSelectedShowtimeId(showtime.id);
     setCurrentScreen('seat_map');
   };
 
@@ -129,7 +165,14 @@ export default function App() {
     if (currentScreen === 'landing') {
       return (
         <LandingPage
+          currentCity={currentCity}
+          currentTheatre={currentTheatre}
           onSelectMovie={handleSelectMovieFromLanding}
+          onSelectTheatre={(th) => {
+            handleSelectTheatre(th);
+            setCurrentScreen('seat_map');
+          }}
+          onOpenCitySelect={() => setShowCityModal(true)}
           onOpenLogin={() => setShowLoginModal(true)}
           onDirect3DPreview={() => setCurrentScreen('seat_preview')}
           currentUser={currentUser}
@@ -162,21 +205,22 @@ export default function App() {
           seats={seats}
           seat={selectedSeat}
           movie={activeMovie}
+          currency={currentTheatre.currency}
           onBackToSeatMap={handleBackToSeatMap}
           onBookSeat={() => setShowCheckout(true)}
         />
       );
     }
 
-    // 4. Seat Selection (STATE A: Vels Theatres Chennai)
+    // 4. Seat Selection (STATE A: Multiplex & City Seating Matrix)
     const activeShowtime = showtimes.find((s) => s.id === selectedShowtimeId);
 
     return (
       <div className="relative w-full h-full bg-[#050505] flex flex-col justify-between overflow-hidden select-none">
-        {/* Top Header matching BookMyShow Vels Theatres */}
+        {/* Top Header with City, Multiplex & Showtime selector */}
         <CinemaHeader
           movieTitle={`${activeMovie.title} - ${activeMovie.language}`}
-          theatreSubtitle={`${VELS_CINEMA_INFO.name} | ${selectedDate.split(',')[0]} | ${activeShowtime?.time || VELS_CINEMA_INFO.showtime}`}
+          theatreSubtitle={`${currentTheatre.name} (${currentTheatre.city}) · ${currentTheatre.hall} | ${selectedDate.split(',')[0]} | ${activeShowtime?.time || currentTheatre.showtimes[0].time}`}
           showtimes={showtimes}
           selectedShowtimeId={selectedShowtimeId}
           onSelectShowtime={setSelectedShowtimeId}
@@ -184,25 +228,30 @@ export default function App() {
           onSelectDate={setSelectedDate}
           onBackClick={() => setCurrentScreen('landing')}
           onOpenLogin={() => setShowLoginModal(true)}
+          onOpenTheatreSelect={() => setShowTheatreModal(true)}
           userName={currentUser?.name}
           currentStep={2}
         />
 
-        {/* Interactive Scrollable Seat Map matching Vels Theatres */}
+        {/* Interactive Scrollable Seat Map matching Theatre specifications */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
           <SeatMap
             seats={seats}
             selectedSeatId={selectedSeatId}
             onSelectSeat={handleSelectSeat}
+            eliteTierLabel={`${currentTheatre.currency}${currentTheatre.elitePrice} ELITE`}
+            economyTierLabel={`${currentTheatre.currency}${currentTheatre.economyPrice} ECONOMY`}
+            currency={currentTheatre.currency}
           />
 
-          {/* Seat Legend matching BookMyShow */}
+          {/* Seat Legend */}
           <SeatLegend />
         </div>
 
         {/* Bottom Booking Summary Bar */}
         <SeatBottomBar
           selectedSeat={selectedSeat}
+          currency={currentTheatre.currency}
           onContinue={handleContinueToPreview}
         />
       </div>
@@ -220,7 +269,7 @@ export default function App() {
           <button
             onClick={() => setCurrentScreen('landing')}
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/90 border border-[#222222] hover:border-[#55E6A5] text-[#D0D0D0] hover:text-white transition text-[11px] font-medium shadow-lg cursor-pointer"
-            title="Go to Vels Theatres Landing Page"
+            title="Go to Movies Landing Page"
           >
             <Home className="w-3 h-3 text-[#55E6A5]" />
             <span className="hidden sm:inline">Landing Page</span>
@@ -263,6 +312,7 @@ export default function App() {
           seat={selectedSeat}
           movie={activeMovie}
           showtime={showtimes.find((s) => s.id === selectedShowtimeId)}
+          theatre={currentTheatre}
           currentUser={currentUser}
           onClose={() => setShowCheckout(false)}
           onConfirmBooking={handleConfirmBooking}
@@ -274,6 +324,26 @@ export default function App() {
         <LoginModal
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={(user) => setCurrentUser(user)}
+        />
+      )}
+
+      {/* Global City Select Modal */}
+      {showCityModal && (
+        <CitySelectModal
+          currentCity={currentCity}
+          onSelectCity={handleSelectCity}
+          onClose={() => setShowCityModal(false)}
+        />
+      )}
+
+      {/* Theatre & Showtime Selection Modal */}
+      {showTheatreModal && (
+        <TheatreSelectModal
+          movie={activeMovie}
+          currentTheatreId={currentTheatre.id}
+          selectedCity={currentCity}
+          onSelectTheatreAndShowtime={handleSelectTheatreAndShowtime}
+          onClose={() => setShowTheatreModal(false)}
         />
       )}
     </div>

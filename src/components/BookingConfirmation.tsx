@@ -58,7 +58,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         <div className="p-5 space-y-4">
           <div>
             <span className="text-[10px] uppercase font-bold text-[#55E6A5] tracking-wider block">
-              Meridian · {booking.hallName}
+              {booking.theatreName} · {booking.hallName}
             </span>
             <h3 className="text-base font-bold text-[#F5F5F5] mt-0.5">
               {booking.movieTitle}
@@ -71,7 +71,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
           <div className="p-3 bg-[#070707] border border-[#1A1A1A] rounded-2xl flex items-center justify-between">
             <div>
               <span className="text-[10px] text-[#777777] uppercase font-bold block">
-                Seat Reserved · Paid ₹{booking.total}
+                Seat Reserved · Paid {booking.currency || '₹'}{booking.total}
               </span>
               <span className="text-sm font-bold text-[#F5F5F5] font-mono">
                 Row {booking.seat.row}, Seat {booking.seat.number}

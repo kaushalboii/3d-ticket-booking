@@ -8,6 +8,7 @@ interface SeatPreviewViewProps {
   seats: Seat[];
   seat: Seat;
   movie?: Movie;
+  currency?: string;
   onBackToSeatMap: () => void;
   onBookSeat: () => void;
 }
@@ -16,6 +17,7 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
   seats,
   seat,
   movie,
+  currency = '₹',
   onBackToSeatMap,
   onBookSeat,
 }) => {
@@ -87,6 +89,7 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
         <div className="relative z-20 w-full mt-auto">
           <SeatInfoDrawer
             seat={seat}
+            currency={currency}
             onChangeSeat={onBackToSeatMap}
             onBookSeat={onBookSeat}
           />
@@ -106,7 +109,7 @@ export const SeatPreviewView: React.FC<SeatPreviewViewProps> = ({
             onClick={onBookSeat}
             className="px-6 py-2.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold shadow-lg shadow-white/20 active:scale-95 transition"
           >
-            Book · ₹{seat.price}
+            Book · {currency}{seat.price}
           </button>
         </div>
       )}

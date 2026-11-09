@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SeatInfoDrawerProps {
   seat: Seat;
+  currency?: string;
   onChangeSeat: () => void;
   onBookSeat: () => void;
   isCollapsed?: boolean;
@@ -12,6 +13,7 @@ interface SeatInfoDrawerProps {
 
 export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
   seat,
+  currency = '₹',
   onChangeSeat,
   onBookSeat,
 }) => {
@@ -39,7 +41,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               Row {seat.row}, Seat {seat.number}
             </span>
             <span className="text-[11px] text-[#888888]">
-              · {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} (₹{seat.price})
+              · {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} ({currency}{seat.price})
             </span>
           </div>
 
@@ -55,7 +57,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               onClick={onBookSeat}
               className="px-4 py-1.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold shadow-md"
             >
-              Book · ₹{seat.price}
+              Book · {currency}{seat.price}
             </button>
           </div>
         </div>
@@ -77,7 +79,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
 
               {/* Tier & Price */}
               <p className="text-[#929292] text-xs font-normal mt-0.5">
-                {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} · ₹{seat.price}
+                {seat.tier === 'elite' ? 'Elite' : seat.tier === 'economy' ? 'Economy' : seat.tier === 'recliner' ? 'Recliner' : 'Standard'} · {currency}{seat.price}
               </p>
             </div>
 
@@ -159,7 +161,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               onClick={onBookSeat}
               className="w-full py-3 rounded-full bg-white text-[#0A0A0A] hover:bg-[#F0F0F0] text-xs font-bold transition active:scale-95 cursor-pointer shadow-lg shadow-white/10"
             >
-              Book · ₹{seat.price}
+              Book · {currency}{seat.price}
             </button>
           </div>
         </>

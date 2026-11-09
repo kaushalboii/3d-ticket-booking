@@ -33,6 +33,31 @@ export interface Showtime {
   selected?: boolean;
 }
 
+export interface City {
+  id: string;
+  name: string;
+  country: string;
+  flag: string;
+  theatresCount: number;
+}
+
+export interface Theatre {
+  id: string;
+  name: string;
+  brand: string;
+  city: string;
+  country: string;
+  location: string;
+  hall: string;
+  format: '4K Laser Atmos' | 'IMAX Laser' | 'Dolby Cinema' | 'RealD 3D';
+  currency: string;
+  elitePrice: number;
+  economyPrice: number;
+  showtimes: Showtime[];
+  occupiedSeats: string[];
+  bannerImage?: string;
+}
+
 export interface Movie {
   id: string;
   title: string;
@@ -45,6 +70,9 @@ export interface Movie {
   director: string;
   theatre: string;
   timing: string;
+  description?: string;
+  tagline?: string;
+  theatreIds?: string[];
 }
 
 export interface UserProfile {
@@ -67,6 +95,7 @@ export interface Booking {
   ticketPrice: number;
   fee: number;
   total: number;
+  currency?: string;
   createdAt: string;
   customerName: string;
   customerPhone: string;
