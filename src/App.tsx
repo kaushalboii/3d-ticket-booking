@@ -17,6 +17,7 @@ export default function App() {
   const [seats, setSeats] = useState<Seat[]>(() => generateVelsTheatresSeats());
   const [showtimes, setShowtimes] = useState<Showtime[]>(VELS_SHOWTIMES);
   const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>('st-4'); // '11:10 PM'
+  const [selectedDate, setSelectedDate] = useState<string>('Mon, 09 Nov, 2026');
   const [activeMovie, setActiveMovie] = useState<Movie>(MOVIES_LIST[0]); // 'Scene - Tamil'
 
   // Default selected seat: H1 or F8 (in BookMyShow screenshot, H1 is in green focus)
@@ -29,12 +30,26 @@ export default function App() {
       if (hash.includes('preview') || hash.includes('3d') || hash.includes('eye')) {
         return 'seat_preview';
       }
-      if (hash.includes('landing') || hash.includes('home') || hash.includes('movies')) {
-        return 'landing';
+      if (hash.includes('seat') || hash.includes('map')) {
+        return 'seat_map';
       }
     }
-    return 'seat_map';
+    return 'landing'; // Default entry point is the clean movie catalogue!
   });
+
+  // Keep URL hash in sync with current screen for browser back/forward and bookmarking
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (currentScreen === 'seat_preview') {
+      window.location.hash = '3d';
+    } else if (currentScreen === 'seat_map') {
+      window.location.hash = 'seat_map';
+    } else if (currentScreen === 'landing') {
+      window.location.hash = 'landing';
+    } else if (currentScreen === 'confirmation') {
+      window.location.hash = 'ticket';
+    }
+  }, [currentScreen]);
 
   useEffect(() => {
     const handleHash = () => {
@@ -116,6 +131,7 @@ export default function App() {
         <LandingPage
           onSelectMovie={handleSelectMovieFromLanding}
           onOpenLogin={() => setShowLoginModal(true)}
+          onDirect3DPreview={() => setCurrentScreen('seat_preview')}
           currentUser={currentUser}
         />
       );
@@ -129,6 +145,11 @@ export default function App() {
           onDone={() => {
             setConfirmedBooking(null);
             setCurrentScreen('seat_map');
+          }}
+          onView3D={() => setCurrentScreen('seat_preview')}
+          onHome={() => {
+            setConfirmedBooking(null);
+            setCurrentScreen('landing');
           }}
         />
       );
@@ -148,18 +169,23 @@ export default function App() {
     }
 
     // 4. Seat Selection (STATE A: Vels Theatres Chennai)
+    const activeShowtime = showtimes.find((s) => s.id === selectedShowtimeId);
+
     return (
       <div className="relative w-full h-full bg-[#050505] flex flex-col justify-between overflow-hidden select-none">
         {/* Top Header matching BookMyShow Vels Theatres */}
         <CinemaHeader
           movieTitle={`${activeMovie.title} - ${activeMovie.language}`}
-          theatreSubtitle={`${VELS_CINEMA_INFO.name} | ${VELS_CINEMA_INFO.date} | ${VELS_CINEMA_INFO.showtime}`}
+          theatreSubtitle={`${VELS_CINEMA_INFO.name} | ${selectedDate.split(',')[0]} | ${activeShowtime?.time || VELS_CINEMA_INFO.showtime}`}
           showtimes={showtimes}
           selectedShowtimeId={selectedShowtimeId}
           onSelectShowtime={setSelectedShowtimeId}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
           onBackClick={() => setCurrentScreen('landing')}
           onOpenLogin={() => setShowLoginModal(true)}
           userName={currentUser?.name}
+          currentStep={2}
         />
 
         {/* Interactive Scrollable Seat Map matching Vels Theatres */}

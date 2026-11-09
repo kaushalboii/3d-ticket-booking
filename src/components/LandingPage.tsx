@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Movie, UserProfile } from '../types';
 import { MOVIES_LIST, VELS_CINEMA_INFO } from '../data/velsData';
 import { Film, Calendar, Clock, MapPin, Eye, Star, User, Sparkles, ChevronRight, Compass, ShieldCheck } from 'lucide-react';
@@ -6,15 +6,23 @@ import { Film, Calendar, Clock, MapPin, Eye, Star, User, Sparkles, ChevronRight,
 interface LandingPageProps {
   onSelectMovie: (movie: Movie) => void;
   onOpenLogin: () => void;
+  onDirect3DPreview?: () => void;
   currentUser: UserProfile | null;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onSelectMovie,
   onOpenLogin,
+  onDirect3DPreview,
   currentUser,
 }) => {
+  const [selectedLang, setSelectedLang] = useState<string>('All');
   const featuredMovie = MOVIES_LIST[0]; // Scene - Tamil
+
+  const filteredMovies = MOVIES_LIST.filter((m) => {
+    if (selectedLang === 'All') return true;
+    return m.language.toLowerCase() === selectedLang.toLowerCase();
+  });
 
   return (
     <div className="w-full h-full bg-[#050505] text-[#F5F5F5] flex flex-col overflow-y-auto select-none">
@@ -95,39 +103,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* Feature Highlights: Signature 3D Preview */}
       <div className="px-5 py-4">
-        <div className="w-full bg-[#0E0E0E] border border-[#222222] rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+        <div
+          onClick={onDirect3DPreview || (() => onSelectMovie(featuredMovie))}
+          className="w-full bg-[#0E0E0E] hover:bg-[#141414] border border-[#222222] hover:border-[#55E6A5]/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg cursor-pointer transition group"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#55E6A5]/10 border border-[#55E6A5]/30 flex items-center justify-center text-[#55E6A5]">
+            <div className="w-9 h-9 rounded-xl bg-[#55E6A5]/10 border border-[#55E6A5]/30 flex items-center justify-center text-[#55E6A5] group-hover:scale-105 transition">
               <Compass className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-[#F5F5F5]">
-                Signature 3D First-Person Seat View
+              <h4 className="text-xs font-bold text-[#F5F5F5] group-hover:text-[#55E6A5] transition">
+                Signature 3D First-Person Seat View Simulator
               </h4>
               <p className="text-[11px] text-[#888888]">
                 See the exact view of the screen from your seat with 360° drag look-around before booking!
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-[#55E6A5] shrink-0">
-            Preview Available →
+          <span className="text-[11px] font-bold text-[#55E6A5] shrink-0 flex items-center gap-1 group-hover:translate-x-0.5 transition">
+            Launch 3D Preview →
           </span>
         </div>
       </div>
 
       {/* Now Showing Movie Grid */}
-      <div className="px-5 pb-8 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider text-[11px]">
-            Movies at Vels Theatres Chennai
-          </h3>
-          <span className="text-[10px] text-[#888888]">
-            {MOVIES_LIST.length} Shows Today
-          </span>
+      <div className="px-5 pb-8 space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider text-[11px]">
+              Movies at Vels Theatres Chennai
+            </h3>
+            <p className="text-[10px] text-[#777777]">
+              Screen 1 (Velan 4K Laser Dolby Atmos) · {filteredMovies.length} Shows Today
+            </p>
+          </div>
+
+          {/* Language filter pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {['All', 'Tamil', 'English', 'Japanese'].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setSelectedLang(lang)}
+                className={`px-3 py-1 rounded-full text-[10px] font-semibold transition cursor-pointer shrink-0 ${
+                  selectedLang === lang
+                    ? 'bg-[#55E6A5] text-[#050505]'
+                    : 'bg-[#101010] border border-[#222222] text-[#888888] hover:text-white'
+                }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {MOVIES_LIST.map((movie) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {filteredMovies.map((movie) => (
             <div
               key={movie.id}
               onClick={() => onSelectMovie(movie)}

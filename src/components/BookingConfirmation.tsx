@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Booking } from '../types';
-import { CheckCircle2, Download, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, Download, ArrowLeft, Eye, Home, Check } from 'lucide-react';
 
 interface BookingConfirmationProps {
   booking: Booking;
   onDone: () => void;
+  onView3D?: () => void;
+  onHome?: () => void;
 }
 
 export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   booking,
   onDone,
+  onView3D,
+  onHome,
 }) => {
+  const [downloaded, setDownloaded] = useState(false);
+
+  const handleDownload = () => {
+    setDownloaded(true);
+    setTimeout(() => setDownloaded(false), 3000);
+  };
   return (
     <div className="w-full h-full bg-[#050505] flex flex-col items-center justify-between p-6 select-none animate-fade-in">
       {/* Top Header */}
@@ -104,18 +114,38 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
       {/* Bottom Actions */}
       <div className="w-full max-w-xs space-y-2">
         <button
-          onClick={() => alert(`Saved Pass ${booking.reference} to Apple / Google Wallet!`)}
+          onClick={handleDownload}
           className="w-full py-3 rounded-full bg-white text-[#0A0A0A] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-white/10"
         >
-          <Download className="w-3.5 h-3.5" />
-          <span>Save to Apple / Google Wallet</span>
+          {downloaded ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-emerald-600 font-bold" />
+              <span>Saved Pass to Wallet!</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-3.5 h-3.5" />
+              <span>Save Pass to Apple / Google Wallet</span>
+            </>
+          )}
         </button>
 
+        {onView3D && (
+          <button
+            onClick={onView3D}
+            className="w-full py-2.5 rounded-full bg-[#181818] border border-[#262626] hover:border-[#55E6A5] text-[#55E6A5] text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>View 3D Seat Sightline Again</span>
+          </button>
+        )}
+
         <button
-          onClick={onDone}
-          className="w-full py-3 rounded-full bg-[#161616] border border-[#262626] text-[#929292] hover:text-[#F5F5F5] text-xs font-semibold transition active:scale-95 cursor-pointer"
+          onClick={onHome || onDone}
+          className="w-full py-2.5 rounded-full bg-[#111111] border border-[#222222] text-[#888888] hover:text-[#F5F5F5] text-xs font-medium transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
         >
-          Back to Seat Map
+          <Home className="w-3 h-3" />
+          <span>Book Another Movie / Return Home</span>
         </button>
       </div>
     </div>
