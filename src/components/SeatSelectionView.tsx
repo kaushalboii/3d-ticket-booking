@@ -30,7 +30,12 @@ export const SeatSelectionView: React.FC<SeatSelectionViewProps> = ({
   const [focusedSeat, setFocusedSeat] = useState<Seat | null>(() => {
     return seats.find((s) => s.id === 'D-6') || seats[0];
   });
-  const [viewMode, setViewMode] = useState<'overview' | 'first_person'>('overview');
+  const [viewMode, setViewMode] = useState<'overview' | 'first_person'>(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('eye')) {
+      return 'first_person';
+    }
+    return 'overview';
+  });
   const [hoveredSeat, setHoveredSeat] = useState<Seat | null>(null);
   const [show2DDrawer, setShow2DDrawer] = useState(false);
 

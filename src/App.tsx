@@ -25,8 +25,18 @@ export default function App() {
   const [cinemaSeats, setCinemaSeats] = useState<Seat[]>(() => generateAuditoriumSeats());
 
   // Navigation and selection state
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(() => {
+    if (typeof window !== 'undefined' && (window.location.hash.includes('3d') || window.location.hash.includes('eye') || window.location.hash.includes('movie'))) {
+      return initialMovies[0];
+    }
+    return null;
+  });
+  const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(() => {
+    if (typeof window !== 'undefined' && (window.location.hash.includes('3d') || window.location.hash.includes('eye'))) {
+      return initialShowtimes[0];
+    }
+    return null;
+  });
 
   // Booking flow state
   const [checkoutSeats, setCheckoutSeats] = useState<Seat[] | null>(null);
