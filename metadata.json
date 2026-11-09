@@ -1,6 +1,0 @@
-{
-  "name": "CINESCAPE - 3D Cinema Experience & Ticket Booking",
-  "description": "Premium cinema ticket booking platform with interactive 3D seat preview, realistic eye-level sightline simulation, and real-time seat reservation.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
