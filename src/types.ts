@@ -92,6 +92,7 @@ export interface Booking {
   date: string;
   showtime: string;
   seat: Seat;
+  seats?: Seat[];
   ticketPrice: number;
   fee: number;
   total: number;

@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SeatInfoDrawerProps {
   seat: Seat;
+  selectedSeats?: Seat[];
   currency?: string;
   onChangeSeat: () => void;
   onBookSeat: () => void;
@@ -13,12 +14,16 @@ interface SeatInfoDrawerProps {
 
 export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
   seat,
+  selectedSeats = [seat],
   currency = '₹',
   onChangeSeat,
   onBookSeat,
 }) => {
   const { metrics } = seat;
   const [collapsed, setCollapsed] = useState(false);
+
+  const totalSeatsCount = selectedSeats.length;
+  const totalPrice = selectedSeats.reduce((sum, s) => sum + s.price, 0);
 
   return (
     <div className="w-full bg-[#0E1118] border-t border-white/[0.08] rounded-t-3xl px-6 pt-3 pb-6 flex flex-col select-none transition-all duration-200">
@@ -36,10 +41,12 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-medium text-[#55E6A5]">
-              Row {seat.row}, Seat {seat.number}
+              {totalSeatsCount > 1
+                ? `${totalSeatsCount} Seats (${selectedSeats.map((s) => s.id).join(', ')})`
+                : `Row ${seat.row}, Seat ${seat.number}`}
             </span>
             <span className="text-[11px] text-[#7A8296] font-mono">
-              · {seat.tier.toUpperCase()} ({currency}{seat.price})
+              · {currency}{totalPrice}
             </span>
           </div>
 
@@ -55,7 +62,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               onClick={onBookSeat}
               className="px-4 py-1.5 rounded-full bg-[#55E6A5] text-[#07130E] text-xs font-medium cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
             >
-              Book · {currency}{seat.price}
+              {totalSeatsCount > 1 ? `Book ${totalSeatsCount} · ${currency}${totalPrice}` : `Book · ${currency}${seat.price}`}
             </button>
           </div>
         </div>
@@ -70,11 +77,13 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               </span>
 
               <h2 className="text-[#F0F1F4] font-medium text-lg tracking-tight">
-                Row {seat.row}, Seat {seat.number}
+                {totalSeatsCount > 1
+                  ? `${totalSeatsCount} Seats Selected (${selectedSeats.map((s) => s.id).join(', ')})`
+                  : `Row ${seat.row}, Seat ${seat.number}`}
               </h2>
 
               <p className="text-[#7A8296] text-xs font-normal mt-0.5 font-mono">
-                {seat.tier.toUpperCase()} · {currency}{seat.price}
+                {seat.tier.toUpperCase()} · {currency}{totalPrice} {totalSeatsCount > 1 ? 'total' : ''}
               </p>
             </div>
 
@@ -155,7 +164,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
               onClick={onBookSeat}
               className="w-full py-2.5 rounded-full bg-[#55E6A5] text-[#07130E] hover:brightness-105 active:scale-[0.98] text-xs font-medium transition cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
             >
-              Book · {currency}{seat.price}
+              {totalSeatsCount > 1 ? `Book ${totalSeatsCount} seats · ${currency}${totalPrice}` : `Book · ${currency}${seat.price}`}
             </button>
           </div>
         </>

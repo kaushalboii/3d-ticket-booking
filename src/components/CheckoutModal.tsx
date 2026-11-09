@@ -5,6 +5,7 @@ import { CreditCard, X, Ticket } from 'lucide-react';
 
 interface CheckoutModalProps {
   seat: Seat;
+  seats?: Seat[];
   movie?: Movie;
   showtime?: Showtime;
   theatre?: Theatre;
@@ -16,6 +17,7 @@ interface CheckoutModalProps {
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   seat,
+  seats,
   movie,
   showtime,
   theatre,
@@ -27,10 +29,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
 
+  const bookingSeats = seats && seats.length > 0 ? seats : [seat];
   const currency = theatre?.currency || '₹';
   const isIndia = currency === '₹';
-  const fee = isIndia ? 30 : currency === '$' ? 3.50 : 2.50;
-  const total = Number((seat.price + fee).toFixed(2));
+  const ticketSubtotal = bookingSeats.reduce((sum, s) => sum + s.price, 0);
+  const fee = (isIndia ? 30 : currency === '$' ? 3.50 : 2.50) * bookingSeats.length;
+  const total = Number((ticketSubtotal + fee).toFixed(2));
 
   const movieTitle = movie ? movie.title : CINEMA_INFO.movieTitle;
   const movieLang = movie ? movie.language : 'Tamil';
@@ -57,8 +61,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         hallName,
         date: bookingDate,
         showtime: showtimeStr,
-        seat,
-        ticketPrice: seat.price,
+        seat: bookingSeats[0],
+        seats: bookingSeats,
+        ticketPrice: ticketSubtotal,
         fee,
         total,
         currency,
@@ -114,7 +119,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
               <span className="text-[#7A8296]">Seat reservation:</span>
               <span className="text-[#55E6A5] font-mono font-medium">
-                Row {seat.row}, Seat {seat.number} ({seat.tier.toUpperCase()})
+                {bookingSeats.length > 1
+                  ? `${bookingSeats.length} Seats (${bookingSeats.map((s) => s.id).join(', ')})`
+                  : `Row ${seat.row}, Seat ${seat.number}`}
               </span>
             </div>
           </div>
@@ -147,8 +154,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           {/* Pricing Breakdown */}
           <div className="space-y-1.5 text-xs text-[#7A8296] pt-1 font-mono">
             <div className="flex justify-between">
-              <span>Ticket price</span>
-              <span className="text-[#D1D5DF]">{currency}{seat.price}</span>
+              <span>Ticket price ({bookingSeats.length} {bookingSeats.length > 1 ? 'tickets' : 'ticket'})</span>
+              <span className="text-[#D1D5DF]">{currency}{ticketSubtotal}</span>
             </div>
             <div className="flex justify-between">
               <span>Convenience & 3D fee</span>

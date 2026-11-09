@@ -1,19 +1,51 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Seat } from '../types';
 import { ScreenArc } from './ScreenArc';
 
 interface SeatMapProps {
   seats: Seat[];
-  selectedSeatId: string | null;
+  selectedSeatId?: string | null;
+  selectedSeatIds?: string[];
   onSelectSeat: (seat: Seat) => void;
   eliteTierLabel?: string;
   economyTierLabel?: string;
   currency?: string;
 }
 
+// Framer Motion staggered entrance animation variants (50ms delay between rows)
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05, // Stagger each row entrance by exactly 50ms
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const rowVariants = {
+  hidden: {
+    opacity: 0,
+    y: 16,
+    scale: 0.985,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.38,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+};
+
 export const SeatMap: React.FC<SeatMapProps> = ({
   seats,
   selectedSeatId,
+  selectedSeatIds,
   onSelectSeat,
   eliteTierLabel = '₹190 ELITE',
   economyTierLabel = '₹190 ECONOMY',
@@ -21,9 +53,18 @@ export const SeatMap: React.FC<SeatMapProps> = ({
 }) => {
   const eliteRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
   const economyRows = ['J'];
+  const allRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
-  // UI view mode: classic red UI vs grid view
+  // UI view mode: classic velvet UI vs grid view
   const [uiMode, setUiMode] = useState<'red' | 'grid'>('red');
+
+  // Check if a seat is currently selected (supports both array and single id)
+  const isSeatSelected = (seatId: string) => {
+    if (selectedSeatIds && selectedSeatIds.length > 0) {
+      return selectedSeatIds.includes(seatId);
+    }
+    return seatId === selectedSeatId;
+  };
 
   // Split row seats into Left Bank, Center Bank, Right Bank
   const renderRow = (rowLetter: string) => {
@@ -57,7 +98,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({
     }
 
     return (
-      <div key={rowLetter} className="flex items-center gap-1.5 sm:gap-2 mb-2 min-w-max justify-center">
+      <motion.div
+        key={rowLetter}
+        variants={rowVariants}
+        className="flex items-center gap-1.5 sm:gap-2 mb-2 min-w-max justify-center"
+      >
         {/* Left Row Letter */}
         <span className="w-5 text-[11px] font-mono text-[#5C6479] text-center shrink-0">
           {rowLetter}
@@ -69,7 +114,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             <SeatItem
               key={seat.id}
               seat={seat}
-              isSelected={seat.id === selectedSeatId}
+              isSelected={isSeatSelected(seat.id)}
               isRedUi={uiMode === 'red'}
               currency={currency}
               onClick={() => onSelectSeat(seat)}
@@ -86,7 +131,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             <SeatItem
               key={seat.id}
               seat={seat}
-              isSelected={seat.id === selectedSeatId}
+              isSelected={isSeatSelected(seat.id)}
               isRedUi={uiMode === 'red'}
               currency={currency}
               onClick={() => onSelectSeat(seat)}
@@ -103,7 +148,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             <SeatItem
               key={seat.id}
               seat={seat}
-              isSelected={seat.id === selectedSeatId}
+              isSelected={isSeatSelected(seat.id)}
               isRedUi={uiMode === 'red'}
               currency={currency}
               onClick={() => onSelectSeat(seat)}
@@ -115,7 +160,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
         <span className="w-5 text-[11px] font-mono text-[#5C6479] text-center shrink-0">
           {rowLetter}
         </span>
-      </div>
+      </motion.div>
     );
   };
 
@@ -148,8 +193,15 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             </button>
           </div>
 
-          {/* Curved Screen Arc at Top */}
-          <ScreenArc />
+          {/* Curved Screen Arc with smooth entrance */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] as const }}
+            className="w-full flex justify-center"
+          >
+            <ScreenArc />
+          </motion.div>
         </div>
 
         {/* Elite Category Header */}
@@ -160,10 +212,15 @@ export const SeatMap: React.FC<SeatMapProps> = ({
           <div className="w-3/4 max-w-[320px] h-[1px] bg-white/[0.06] mx-auto mt-1.5" />
         </div>
 
-        {/* Elite Rows (A - I) */}
-        <div className="flex flex-col items-center mb-3">
+        {/* Staggered Row Entrance Animation Container (50ms delay between rows) */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col items-center mb-3"
+        >
           {eliteRows.map((r) => renderRow(r))}
-        </div>
+        </motion.div>
 
         {/* Economy Category Header */}
         <div className="w-full text-center py-2 mb-1">
@@ -173,10 +230,15 @@ export const SeatMap: React.FC<SeatMapProps> = ({
           <div className="w-3/4 max-w-[320px] h-[1px] bg-white/[0.06] mx-auto mt-1.5" />
         </div>
 
-        {/* Economy Rows (J) */}
-        <div className="flex flex-col items-center mb-4">
+        {/* Economy Rows (J) with Staggered Entrance */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col items-center mb-4"
+        >
           {economyRows.map((r) => renderRow(r))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -200,10 +262,15 @@ const SeatItem: React.FC<SeatItemProps> = ({
   const isOccupied = seat.status === 'occupied';
   const formatNum = seat.number < 10 ? `0${seat.number}` : `${seat.number}`;
 
-  // 1. Selected State: Solid Mint with crisp contrast
+  // 1. Selected State: Solid Mint with Framer Motion spring pop
   if (isSelected) {
     return (
-      <button
+      <motion.button
+        initial={{ scale: 0.85 }}
+        animate={{ scale: 1.08 }}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
         onClick={onClick}
         className={`w-[20px] h-[20px] sm:w-[22px] sm:h-[22px] ${
           isRedUi ? 'rounded-full' : 'rounded-[4px]'
@@ -211,7 +278,7 @@ const SeatItem: React.FC<SeatItemProps> = ({
         title={`Seat ${seat.id} (Selected - ${currency}${seat.price})`}
       >
         {formatNum}
-      </button>
+      </motion.button>
     );
   }
 

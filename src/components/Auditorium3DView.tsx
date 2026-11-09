@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Seat } from '../types';
-import { RotateCcw, Move, Compass, ZoomIn, ZoomOut } from 'lucide-react';
+import { RotateCcw, Compass } from 'lucide-react';
+import { interpolateCameraCoordinates } from './SeatPreviewView';
 
 interface Auditorium3DViewProps {
   seats: Seat[];
   selectedSeat: Seat;
-  viewPhase: 'transition' | 'eye_level';
+  replayTrigger?: number;
   screenImage?: string;
   onTransitionComplete?: () => void;
 }
@@ -21,10 +22,18 @@ const _currentLookAt = new THREE.Vector3();
 export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
   seats,
   selectedSeat,
-  viewPhase,
+  replayTrigger = 0,
   screenImage,
+  onTransitionComplete,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+
+  // Flight timing and cubic-bezier interpolation state
+  const startTimeRef = useRef<number>(performance.now());
+  const isFlyingRef = useRef<boolean>(true);
+  const hasCompletedRef = useRef<boolean>(false);
+  const onTransitionCompleteRef = useRef(onTransitionComplete);
+  onTransitionCompleteRef.current = onTransitionComplete;
 
   // Look-around angles (yaw: horizontal, pitch: vertical)
   const lookAroundRef = useRef({ yaw: 0, pitch: 0, zoom: 0 });
@@ -33,8 +42,14 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
   const selectedSeatRef = useRef(selectedSeat);
   selectedSeatRef.current = selectedSeat;
 
-  const viewPhaseRef = useRef(viewPhase);
-  viewPhaseRef.current = viewPhase;
+  // Reset animation whenever seat or replay changes
+  useEffect(() => {
+    startTimeRef.current = performance.now();
+    isFlyingRef.current = true;
+    hasCompletedRef.current = false;
+    lookAroundRef.current = { yaw: 0, pitch: 0, zoom: 0 };
+    setHasInteracted(false);
+  }, [selectedSeat.id, replayTrigger]);
 
   // Reset Look-Around to Center Screen
   const handleResetLookAround = () => {
@@ -312,6 +327,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     let prevPointerY = 0;
 
     const onPointerDown = (e: PointerEvent) => {
+      if (isFlyingRef.current) return;
       isDragging = true;
       prevPointerX = e.clientX;
       prevPointerY = e.clientY;
@@ -319,7 +335,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || isFlyingRef.current) return;
       const deltaX = e.clientX - prevPointerX;
       const deltaY = e.clientY - prevPointerY;
       prevPointerX = e.clientX;
@@ -345,6 +361,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
 
     // Mouse wheel zoom
     const onWheel = (e: WheelEvent) => {
+      if (isFlyingRef.current) return;
       e.preventDefault();
       lookAroundRef.current.zoom = Math.max(
         -8,
@@ -361,52 +378,51 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     dom.addEventListener('pointerup', onPointerUp);
     dom.addEventListener('wheel', onWheel, { passive: false });
 
-    // Animation Loop
+    // Animation Loop with Cubic-Bezier Camera Tweening
     let frameId = 0;
 
     const animate = () => {
       frameId = requestAnimationFrame(animate);
 
       const selSeat = selectedSeatRef.current;
-      const currentPhase = viewPhaseRef.current;
       const { yaw, pitch, zoom } = lookAroundRef.current;
+      const aspect = container.clientWidth / container.clientHeight;
+      const baseFov = aspect < 1.0 ? 56 : 50;
 
-      if (currentPhase === 'transition') {
-        // Overhead camera view
-        _targetCamPos.set(selSeat.x * 0.35 + yaw * 4, 14.5, 12.5 + pitch * 3);
-        _targetLookAt.set(selSeat.x * 0.8, selSeat.y, selSeat.z);
+      if (isFlyingRef.current) {
+        // High-end cinematic camera flight from [0, 5, 10] to [seat.x, 1.2, seat.z + 0.8]
+        const elapsed = performance.now() - startTimeRef.current;
+        const rawT = Math.min(1.0, elapsed / 1400); // 1.4s smooth flight
+        const camData = interpolateCameraCoordinates(selSeat, rawT);
 
-        _currentCamPos.lerp(_targetCamPos, 0.09);
-        _currentLookAt.lerp(_targetLookAt, 0.09);
+        camera.position.set(camData.position[0], camData.position[1], camData.position[2]);
+        camera.lookAt(camData.lookAt[0], camData.lookAt[1], camData.lookAt[2]);
+        camera.fov = aspect < 1.0 ? Math.max(54, camData.fov + 4) : camData.fov;
+        camera.updateProjectionMatrix();
 
-        camera.position.copy(_currentCamPos);
-        camera.lookAt(_currentLookAt);
-
+        if (rawT >= 1.0) {
+          isFlyingRef.current = false;
+          if (!hasCompletedRef.current) {
+            hasCompletedRef.current = true;
+            onTransitionCompleteRef.current?.();
+          }
+        }
       } else {
-        // Eye-level First-Person View with Interactive Look-Around
-        _targetCamPos.set(
-          selSeat.x,
-          selSeat.y + 0.95,
-          selSeat.z + 0.08
-        );
+        // Eye-level Seated First-Person View [seat.x, 1.2, seat.z + 0.8] with 360° Drag Look-Around
+        const eyeX = selSeat.x;
+        const eyeY = 1.2;
+        const eyeZ = selSeat.z + 0.8;
+        camera.position.set(eyeX, eyeY, eyeZ);
 
-        // Compute forward look vector based on yaw and pitch
-        // Default target points towards screen center (0, 4.2, 0)
-        const forwardDist = selSeat.z;
-        const targetX = Math.sin(yaw) * forwardDist;
-        const targetZ = selSeat.z - Math.cos(yaw) * forwardDist;
-        const targetY = 4.2 + Math.tan(pitch) * forwardDist;
+        // Forward look vector based on user yaw and pitch
+        const forwardDist = Math.max(4.0, selSeat.z);
+        const lookTargetX = Math.sin(yaw) * forwardDist;
+        const lookTargetZ = eyeZ - Math.cos(yaw) * forwardDist;
+        const lookTargetY = 4.2 + Math.tan(pitch) * forwardDist;
 
-        _targetLookAt.set(targetX, targetY, targetZ);
+        camera.lookAt(lookTargetX, lookTargetY, lookTargetZ);
 
-        _currentCamPos.lerp(_targetCamPos, 0.09);
-        _currentLookAt.lerp(_targetLookAt, 0.12);
-
-        camera.position.copy(_currentCamPos);
-        camera.lookAt(_currentLookAt);
-
-        // Apply zoom to FOV
-        const baseFov = container.clientWidth / container.clientHeight < 1.0 ? 56 : 50;
+        // Apply user zoom to FOV
         camera.fov = Math.max(34, Math.min(70, baseFov - zoom));
         camera.updateProjectionMatrix();
       }

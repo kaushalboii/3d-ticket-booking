@@ -27,8 +27,9 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('Mon, 09 Nov, 2026');
   const [activeMovie, setActiveMovie] = useState<Movie>(MOVIES_LIST[0]); // 'Scene - Tamil'
 
-  // Default selected seat: H1 or F8 (in BookMyShow screenshot, H1 is in green focus)
-  const [selectedSeatId, setSelectedSeatId] = useState<string | null>('F8');
+  // Multi-Seat Selection (default to Row F, Seat 8 matching reference video)
+  const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>(['F8']);
+  const [focusedPreviewSeatId, setFocusedPreviewSeatId] = useState<string>('F8');
 
   // Active Screen: 'landing' | 'seat_map' | 'seat_preview' | 'confirmation'
   const [currentScreen, setCurrentScreen] = useState<'landing' | 'seat_map' | 'seat_preview' | 'confirmation'>(() => {
@@ -41,7 +42,7 @@ export default function App() {
         return 'seat_map';
       }
     }
-    return 'landing'; // Default entry point is the clean movie catalogue!
+    return 'landing';
   });
 
   // Modal Dialogs
@@ -60,7 +61,7 @@ export default function App() {
   });
 
   // Desktop view mode toggle (Mobile frame vs Fullscreen)
-  const [isFramed, setIsFramed] = useState(false); // default fullscreen so user sees everything clearly!
+  const [isFramed, setIsFramed] = useState(false);
 
   // Keep URL hash in sync with current screen for browser back/forward and bookmarking
   useEffect(() => {
@@ -91,7 +92,12 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  const selectedSeat = seats.find((s) => s.id === selectedSeatId) || null;
+  const selectedSeats = seats.filter((s) => selectedSeatIds.includes(s.id));
+  const activePreviewSeat =
+    seats.find((s) => s.id === focusedPreviewSeatId) ||
+    selectedSeats[0] ||
+    seats.find((s) => s.id === 'F8') ||
+    seats[0];
 
   // Handle theatre switch
   const handleSelectTheatre = (theatre: Theatre) => {
@@ -113,19 +119,28 @@ export default function App() {
     }
   };
 
-  // Handle seat click in map
+  // Handle seat click in map (supports selecting 1, 2, or more seats!)
   const handleSelectSeat = (seat: Seat) => {
     if (seat.status === 'occupied') return;
-    if (selectedSeatId === seat.id) {
-      setSelectedSeatId(null);
+    if (selectedSeatIds.includes(seat.id)) {
+      const next = selectedSeatIds.filter((id) => id !== seat.id);
+      setSelectedSeatIds(next);
+      if (focusedPreviewSeatId === seat.id && next.length > 0) {
+        setFocusedPreviewSeatId(next[0]);
+      }
     } else {
-      setSelectedSeatId(seat.id);
+      const next = [...selectedSeatIds, seat.id];
+      setSelectedSeatIds(next);
+      setFocusedPreviewSeatId(seat.id);
     }
   };
 
   // Continue to 3D Seat Preview
   const handleContinueToPreview = () => {
-    if (selectedSeat) {
+    if (selectedSeats.length > 0) {
+      if (!selectedSeatIds.includes(focusedPreviewSeatId)) {
+        setFocusedPreviewSeatId(selectedSeats[0].id);
+      }
       setCurrentScreen('seat_preview');
     }
   };
@@ -150,9 +165,10 @@ export default function App() {
 
   // Confirm Booking from Checkout
   const handleConfirmBooking = (booking: Booking) => {
-    // Mark seat as occupied in live state
+    // Mark booked seats as occupied in live state
+    const bookedIds = new Set(booking.seats ? booking.seats.map((s) => s.id) : [booking.seat.id]);
     setSeats((prev) =>
-      prev.map((s) => (s.id === booking.seat.id ? { ...s, status: 'occupied' } : s))
+      prev.map((s) => (bookedIds.has(s.id) ? { ...s, status: 'occupied' } : s))
     );
     setConfirmedBooking(booking);
     setShowCheckout(false);
@@ -198,14 +214,16 @@ export default function App() {
       );
     }
 
-    // 3. Seat-View Preview (STATE B) with 360° Drag Look-Around
-    if (currentScreen === 'seat_preview' && selectedSeat) {
+    // 3. Seat-View Preview (STATE B) with Cubic-Bezier Camera Tween & 360° Drag Look-Around
+    if (currentScreen === 'seat_preview' && activePreviewSeat) {
       return (
         <SeatPreviewView
           seats={seats}
-          seat={selectedSeat}
+          seat={activePreviewSeat}
+          selectedSeats={selectedSeats}
           movie={activeMovie}
           currency={currentTheatre.currency}
+          onSelectSeatToPreview={(s) => setFocusedPreviewSeatId(s.id)}
           onBackToSeatMap={handleBackToSeatMap}
           onBookSeat={() => setShowCheckout(true)}
         />
@@ -233,11 +251,12 @@ export default function App() {
           currentStep={2}
         />
 
-        {/* Interactive Scrollable Seat Map matching Theatre specifications */}
+        {/* Interactive Scrollable Seat Map with Framer Motion Staggered Row Entrance */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
           <SeatMap
             seats={seats}
-            selectedSeatId={selectedSeatId}
+            selectedSeatId={focusedPreviewSeatId}
+            selectedSeatIds={selectedSeatIds}
             onSelectSeat={handleSelectSeat}
             eliteTierLabel={`${currentTheatre.currency}${currentTheatre.elitePrice} ELITE`}
             economyTierLabel={`${currentTheatre.currency}${currentTheatre.economyPrice} ECONOMY`}
@@ -250,7 +269,8 @@ export default function App() {
 
         {/* Bottom Booking Summary Bar */}
         <SeatBottomBar
-          selectedSeat={selectedSeat}
+          selectedSeat={activePreviewSeat}
+          selectedSeats={selectedSeats}
           currency={currentTheatre.currency}
           onContinue={handleContinueToPreview}
         />
@@ -304,9 +324,10 @@ export default function App() {
       </div>
 
       {/* Checkout Modal */}
-      {showCheckout && selectedSeat && (
+      {showCheckout && activePreviewSeat && (
         <CheckoutModal
-          seat={selectedSeat}
+          seat={activePreviewSeat}
+          seats={selectedSeats}
           movie={activeMovie}
           showtime={showtimes.find((s) => s.id === selectedShowtimeId)}
           theatre={currentTheatre}

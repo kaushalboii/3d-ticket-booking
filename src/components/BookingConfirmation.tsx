@@ -20,6 +20,10 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   const handleDownload = () => {
     setDownloaded(true);
     try {
+      const seatsText = booking.seats && booking.seats.length > 1
+        ? `${booking.seats.length} Seats (${booking.seats.map((s) => s.id).join(', ')})`
+        : `Row ${booking.seat.row}, Seat ${booking.seat.number} (${booking.seat.tier.toUpperCase()})`;
+
       const ticketText = `================================================
 CINESCAPE DIGITAL BOARDING PASS
 ================================================
@@ -28,7 +32,7 @@ Movie:       ${booking.movieTitle} (${booking.language})
 Cinema:      ${booking.theatreName}
 Screen:      ${booking.hallName}
 Date & Time: ${booking.date} · ${booking.showtime}
-Seat:        Row ${booking.seat.row}, Seat ${booking.seat.number} (${booking.seat.tier.toUpperCase()})
+Seats:       ${seatsText}
 Total Paid:  ${booking.currency || '₹'}${booking.total}
 Guest:       ${booking.customerName}
 ================================================
@@ -100,7 +104,9 @@ Present this QR pass at the entrance scanner.
                 Paid {booking.currency || '₹'}{booking.total}
               </span>
               <span className="text-sm font-medium text-[#F0F1F4] font-mono">
-                Row {booking.seat.row}, Seat {booking.seat.number}
+                {booking.seats && booking.seats.length > 1
+                  ? `${booking.seats.length} Seats (${booking.seats.map((s) => s.id).join(', ')})`
+                  : `Row ${booking.seat.row}, Seat ${booking.seat.number}`}
               </span>
             </div>
             <span className="text-xs px-2.5 py-0.5 rounded bg-white/[0.06] text-[#A3A9B8] font-mono text-[10px]">
