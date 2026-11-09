@@ -1,4 +1,4 @@
-export type SeatTier = 'elite' | 'economy' | 'recliner' | 'standard';
+export type SeatTier = 'standard' | 'elite' | 'recliner' | 'economy';
 
 export type SeatStatus = 'available' | 'occupied' | 'selected';
 
@@ -8,54 +8,30 @@ export interface SeatMetrics {
   distanceMeters: number;
   fovDegrees: number;
   offsetMeters: number;
-  offsetDirection: 'left of centre' | 'right of centre' | 'centre';
+  offsetDirection: string; // e.g. 'left of centre', 'right of centre', 'dead centre'
   category: SeatCategory;
 }
 
 export interface Seat {
-  id: string; // e.g. 'A1', 'F8', 'H1'
-  row: string; // 'A' to 'J'
-  number: number; // seat number
+  id: string; // e.g. 'B4', 'F8', 'I12'
+  row: string; // 'A' to 'I'
+  number: number; // 1 to 14
   tier: SeatTier;
-  tierLabel: string; // '₹190 ELITE' | '₹190 ECONOMY'
-  price: number;
+  tierLabel: string; // 'Standard' | 'Recliner'
+  price: number; // ₹190 or ₹250
   status: SeatStatus;
-  x: number; // lateral position in meters
-  y: number; // elevation in meters
-  z: number; // distance from screen in meters
+  x: number; // 3D lateral coordinate
+  y: number; // 3D elevation
+  z: number; // 3D depth from screen
   metrics: SeatMetrics;
 }
 
 export interface Showtime {
   id: string;
   time: string;
-  format: '2D' | 'IMAX' | 'ATMOS';
+  format: string; // '2D' | 'IMAX' | 'ATMOS'
   selected?: boolean;
-}
-
-export interface City {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  theatresCount: number;
-}
-
-export interface Theatre {
-  id: string;
-  name: string;
-  brand: string;
-  city: string;
-  country: string;
-  location: string;
-  hall: string;
-  format: '4K Laser Atmos' | 'IMAX Laser' | 'Dolby Cinema' | 'RealD 3D';
-  currency: string;
-  elitePrice: number;
-  economyPrice: number;
-  showtimes: Showtime[];
-  occupiedSeats: string[];
-  bannerImage?: string;
+  isSelected?: boolean;
 }
 
 export interface Movie {
@@ -70,9 +46,8 @@ export interface Movie {
   director: string;
   theatre: string;
   timing: string;
+  synopsis?: string;
   description?: string;
-  tagline?: string;
-  theatreIds?: string[];
 }
 
 export interface UserProfile {
@@ -80,6 +55,20 @@ export interface UserProfile {
   phone: string;
   email: string;
   isLoggedIn: boolean;
+}
+
+export interface ScreenConfig {
+  id: string; // 'audi-3' | 'audi-1' | 'audi-2' | 'audi-4'
+  name: string; // 'Audi 3 · IMAX 4K Laser (Reference Standard)'
+  shortName: string; // 'Audi 3'
+  format: string; // 'IMAX 4K Laser & Dolby Atmos'
+  description: string;
+  banks: number[]; // [3, 8, 3]
+  rows: string[];
+  seatsPerRow: number;
+  standardPrice: number;
+  reclinerPrice: number;
+  isReference: boolean;
 }
 
 export interface Booking {
@@ -92,7 +81,7 @@ export interface Booking {
   date: string;
   showtime: string;
   seat: Seat;
-  seats?: Seat[];
+  seats: Seat[];
   ticketPrice: number;
   fee: number;
   total: number;

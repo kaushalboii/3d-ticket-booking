@@ -1,52 +1,26 @@
 import React, { useState } from 'react';
-import { Seat, Booking, Movie, Showtime, UserProfile, Theatre } from '../types';
-import { VELS_CINEMA_INFO as CINEMA_INFO } from '../data/velsData';
-import { CreditCard, X, Ticket } from 'lucide-react';
+import { Seat, Booking } from '../types';
+import { INDIAN_CINEMA_INFO as CINEMA_INFO } from '../data/indianCinemaData';
+import { CreditCard, ShieldCheck, X, CheckCircle2, Ticket, Smartphone } from 'lucide-react';
 
 interface CheckoutModalProps {
-  seat: Seat;
-  seats?: Seat[];
-  movie?: Movie;
-  showtime?: Showtime;
-  theatre?: Theatre;
-  selectedDate?: string;
-  currentUser?: UserProfile | null;
+  seats: Seat[];
   onClose: () => void;
   onConfirmBooking: (booking: Booking) => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
-  seat,
   seats,
-  movie,
-  showtime,
-  theatre,
-  selectedDate,
-  currentUser,
   onClose,
   onConfirmBooking,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
+  const [upiId, setUpiId] = useState('kaushal@okaxis');
 
-  const bookingSeats = seats && seats.length > 0 ? seats : [seat];
-  const currency = theatre?.currency || '₹';
-  const isIndia = currency === '₹';
-  const ticketSubtotal = bookingSeats.reduce((sum, s) => sum + s.price, 0);
-  const fee = (isIndia ? 30 : currency === '$' ? 3.50 : 2.50) * bookingSeats.length;
-  const total = Number((ticketSubtotal + fee).toFixed(2));
-
-  const movieTitle = movie ? movie.title : CINEMA_INFO.movieTitle;
-  const movieLang = movie ? movie.language : 'Tamil';
-  const theatreName = theatre ? theatre.name : CINEMA_INFO.name;
-  const hallName = theatre ? theatre.hall : CINEMA_INFO.hall;
-  const showtimeStr = showtime ? showtime.time : CINEMA_INFO.showtime;
-  const showtimeFormat = showtime ? showtime.format : (theatre?.format || CINEMA_INFO.movieFormat);
-  const bookingDate = selectedDate || CINEMA_INFO.date;
-  const customerName = currentUser?.name || 'Kaushal Maran';
-  const customerPhone = currentUser?.phone || '+91 98401 23456';
-
-  const brandCode = theatre?.name ? theatre.name.replace(/[^A-Za-z]/g, '').substring(0, 4).toUpperCase() : 'CINE';
+  const ticketPrice = seats.reduce((sum, s) => sum + s.price, 0);
+  const fee = 30 * seats.length; // ₹30 GST & booking fee per ticket
+  const total = ticketPrice + fee;
 
   const handlePay = () => {
     setIsProcessing(true);
@@ -54,133 +28,151 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setIsProcessing(false);
       const newBooking: Booking = {
         id: `bk-${Date.now()}`,
-        reference: `${brandCode}-${Math.floor(100000 + Math.random() * 900000)}`,
-        movieTitle,
-        language: movieLang,
-        theatreName,
-        hallName,
-        date: bookingDate,
-        showtime: showtimeStr,
-        seat: bookingSeats[0],
-        seats: bookingSeats,
-        ticketPrice: ticketSubtotal,
+        reference: `VELS-${Math.floor(100000 + Math.random() * 900000)}`,
+        movieTitle: CINEMA_INFO.movieTitle,
+        language: 'Tamil',
+        theatreName: CINEMA_INFO.name,
+        hallName: CINEMA_INFO.hall,
+        date: CINEMA_INFO.date,
+        showtime: CINEMA_INFO.showtime,
+        seat: seats[0],
+        seats: seats,
+        ticketPrice,
         fee,
         total,
-        currency,
         createdAt: new Date().toISOString(),
-        customerName,
-        customerPhone,
+        customerName: 'Kaushal Maran',
+        customerPhone: '+91 98401 23456',
       };
       onConfirmBooking(newBooking);
-    }, 700);
+    }, 900);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm select-none">
-      <div className="w-full max-w-sm bg-[#0E1118] border border-white/[0.08] rounded-3xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm select-none">
+      <div className="w-full max-w-sm bg-[#111111] border border-[#222222] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-[#1C1C1C] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#141822] border border-white/[0.08] flex items-center justify-center text-[#55E6A5]">
-              <Ticket className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <div className="w-7 h-7 rounded-full bg-[#1A1A1A] border border-[#262626] flex items-center justify-center text-[#55E6A5]">
+              <Ticket className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="text-[#F0F1F4] font-medium text-sm">
-                Reserve ticket
+              <h3 className="text-[#F5F5F5] font-semibold text-sm">
+                Confirm Reservation
               </h3>
-              <p className="text-[#7A8296] text-[11px] truncate max-w-[220px]">
-                {theatreName} · {hallName}
+              <p className="text-[#888888] text-[11px]">
+                {CINEMA_INFO.shortName} · {CINEMA_INFO.movieTitle}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-[#141822] text-[#7A8296] hover:text-[#F0F1F4] flex items-center justify-center cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[#1A1A1A] text-[#888888] hover:text-[#F5F5F5] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Content */}
+        {/* Booking Summary */}
         <div className="p-5 space-y-4">
-          {/* Movie Details Summary */}
-          <div className="bg-[#141822] border border-white/[0.08] rounded-2xl p-3.5 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-[#55E6A5]">
-                {showtimeFormat}
-              </span>
-              <span className="text-xs text-[#7A8296] font-mono">
-                {bookingDate.split(',')[0]} · {showtimeStr}
-              </span>
+          <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-3.5 space-y-2">
+            <div className="flex justify-between items-start text-xs">
+              <span className="text-[#888888]">Selected Seats</span>
+              <div className="text-right">
+                <span className="text-white font-bold block">
+                  {seats.map((s) => s.id).join(', ')}
+                </span>
+                <span className="text-[10px] text-[#71717A]">
+                  {seats.length} {seats.length > 1 ? 'Tickets' : 'Ticket'} ({seats[0].tierLabel})
+                </span>
+              </div>
             </div>
-            <h4 className="text-[#F0F1F4] font-medium text-sm">
-              {movieTitle} <span className="text-[#7A8296] font-normal">({movieLang})</span>
-            </h4>
-            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
-              <span className="text-[#7A8296]">Seat reservation:</span>
-              <span className="text-[#55E6A5] font-mono font-medium">
-                {bookingSeats.length > 1
-                  ? `${bookingSeats.length} Seats (${bookingSeats.map((s) => s.id).join(', ')})`
-                  : `Row ${seat.row}, Seat ${seat.number}`}
+
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[#888888]">Ticket Total</span>
+              <span className="text-white font-mono">₹{ticketPrice}</span>
+            </div>
+
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[#888888]">Convenience Fee & GST</span>
+              <span className="text-white font-mono">₹{fee}</span>
+            </div>
+
+            <div className="pt-2 border-t border-[#1C1C1C] flex justify-between items-center">
+              <span className="text-xs font-semibold text-[#888888]">Total Amount</span>
+              <span className="text-[#55E6A5] font-bold text-base font-mono">
+                ₹{total}
               </span>
             </div>
           </div>
 
           {/* Payment Method Selector */}
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              onClick={() => setPaymentMethod('upi')}
-              className={`py-2.5 rounded-xl border transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                paymentMethod === 'upi'
-                  ? 'bg-[#1C2230] text-[#F0F1F4] border-white/[0.2] font-medium'
-                  : 'bg-[#141822] text-[#7A8296] border-white/[0.06] hover:border-white/[0.12]'
-              }`}
-            >
-              <span>{isIndia ? 'UPI / GPay' : 'Apple Pay / GPay'}</span>
-            </button>
-            <button
-              onClick={() => setPaymentMethod('card')}
-              className={`py-2.5 rounded-xl border transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                paymentMethod === 'card'
-                  ? 'bg-[#1C2230] text-[#F0F1F4] border-white/[0.2] font-medium'
-                  : 'bg-[#141822] text-[#7A8296] border-white/[0.06] hover:border-white/[0.12]'
-              }`}
-            >
-              <CreditCard className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>Credit Card</span>
-            </button>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#777777] block">
+              Payment Method (India)
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('upi')}
+                className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                  paymentMethod === 'upi'
+                    ? 'bg-[#181818] border-[#55E6A5] text-[#55E6A5]'
+                    : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>UPI / GPay</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('card')}
+                className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                  paymentMethod === 'card'
+                    ? 'bg-[#181818] border-[#55E6A5] text-[#55E6A5]'
+                    : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
+                }`}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Cards / RuPay</span>
+              </button>
+            </div>
+
+            {paymentMethod === 'upi' && (
+              <div className="pt-1">
+                <input
+                  type="text"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  placeholder="Enter UPI ID (e.g. mobile@upi)"
+                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#55E6A5] font-mono"
+                />
+              </div>
+            )}
           </div>
 
-          {/* Pricing Breakdown */}
-          <div className="space-y-1.5 text-xs text-[#7A8296] pt-1 font-mono">
-            <div className="flex justify-between">
-              <span>Ticket price ({bookingSeats.length} {bookingSeats.length > 1 ? 'tickets' : 'ticket'})</span>
-              <span className="text-[#D1D5DF]">{currency}{ticketSubtotal}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Convenience & 3D fee</span>
-              <span className="text-[#D1D5DF]">{currency}{fee}</span>
-            </div>
-            <div className="pt-2 border-t border-white/[0.06] flex justify-between text-sm font-medium text-[#F0F1F4]">
-              <span>Total payable</span>
-              <span className="text-[#55E6A5]">{currency}{total}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Action */}
-        <div className="p-4 bg-[#0A0C11] border-t border-white/[0.08]">
+          {/* Pay Button */}
           <button
             onClick={handlePay}
             disabled={isProcessing}
-            className="w-full py-2.5 rounded-full bg-[#55E6A5] text-[#07130E] font-medium text-xs tracking-tight transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+            className="w-full py-3 rounded-full bg-[#55E6A5] hover:brightness-105 text-[#050505] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#55E6A5]/25 cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
-              <span>Confirming reservation...</span>
+              <span>Securing Reservation in Audi 3...</span>
             ) : (
-              <span>Pay {currency}{total} & receive pass</span>
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Pay ₹{total} & Get Passes</span>
+              </>
             )}
           </button>
+
+          <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#666666]">
+            <ShieldCheck className="w-3 h-3 text-[#55E6A5]" />
+            <span>Instant booking confirmation with scannable QR ticket</span>
+          </div>
         </div>
       </div>
     </div>

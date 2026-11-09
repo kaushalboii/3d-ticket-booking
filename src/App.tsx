@@ -1,96 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { generateTheatreSeats, THEATRES_LIST, CITIES_LIST, MOVIES_LIST } from './data/velsData';
-import { Seat, Showtime, Movie, Booking, UserProfile, Theatre, City } from './types';
+import React, { useState } from 'react';
+import { generateSeatsForScreen, INDIAN_SHOWTIMES, INDIAN_CINEMA_INFO, INDIAN_MOVIES, INDIAN_SCREENS } from './data/indianCinemaData';
+import { Seat, Showtime, Movie, Booking, UserProfile, ScreenConfig } from './types';
+import { CinemaLandingPage } from './components/CinemaLandingPage';
 import { CinemaHeader } from './components/CinemaHeader';
-import { ScreenArc } from './components/ScreenArc';
 import { SeatMap } from './components/SeatMap';
 import { SeatLegend } from './components/SeatLegend';
 import { SeatBottomBar } from './components/SeatBottomBar';
 import { SeatPreviewView } from './components/SeatPreviewView';
 import { CheckoutModal } from './components/CheckoutModal';
 import { BookingConfirmation } from './components/BookingConfirmation';
-import { LandingPage } from './components/LandingPage';
 import { LoginModal } from './components/LoginModal';
-import { CitySelectModal } from './components/CitySelectModal';
-import { TheatreSelectModal } from './components/TheatreSelectModal';
-import { Smartphone, Maximize2, Home, Film, Globe } from 'lucide-react';
+import { AuditoriumSettingsModal } from './components/AuditoriumSettingsModal';
 
 export default function App() {
-  // Global Platform State: Current City & Multiplex
-  const [currentCity, setCurrentCity] = useState<string>('Chennai');
-  const [currentTheatre, setCurrentTheatre] = useState<Theatre>(THEATRES_LIST[0]);
+  // Screen Configuration (Defaults to Audi 3: The exact reference video standard!)
+  const [currentScreenConfig, setCurrentScreenConfig] = useState<ScreenConfig>(INDIAN_SCREENS[0]);
+  const [seats, setSeats] = useState<Seat[]>(() => generateSeatsForScreen(INDIAN_SCREENS[0].id));
 
-  // Seating & Showtimes dynamically generated for the active Theatre
-  const [seats, setSeats] = useState<Seat[]>(() => generateTheatreSeats(THEATRES_LIST[0]));
-  const [showtimes, setShowtimes] = useState<Showtime[]>(THEATRES_LIST[0].showtimes);
-  const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>(THEATRES_LIST[0].showtimes[0].id);
-  const [selectedDate, setSelectedDate] = useState<string>('Mon, 09 Nov, 2026');
-  const [activeMovie, setActiveMovie] = useState<Movie>(MOVIES_LIST[0]); // 'Scene - Tamil'
+  // Settings & Calibration state
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [projectionMode, setProjectionMode] = useState('imax-laser');
+  const [audioProfile, setAudioProfile] = useState('dolby-atmos');
+  const [showSweetSpotGuide, setShowSweetSpotGuide] = useState(false);
+
+  // Showtimes & Active Movie
+  const [showtimes] = useState<Showtime[]>(INDIAN_SHOWTIMES);
+  const [selectedShowtimeId, setSelectedShowtimeId] = useState<string>('st-2'); // 19:45 IMAX
+  const [activeMovie, setActiveMovie] = useState<Movie>(INDIAN_MOVIES[0]); // Scene - Tamil
 
   // Multi-Seat Selection (default to Row F, Seat 8 matching reference video)
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>(['F8']);
   const [focusedPreviewSeatId, setFocusedPreviewSeatId] = useState<string>('F8');
 
-  // Active Screen: 'landing' | 'seat_map' | 'seat_preview' | 'confirmation'
-  const [currentScreen, setCurrentScreen] = useState<'landing' | 'seat_map' | 'seat_preview' | 'confirmation'>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.includes('preview') || hash.includes('3d') || hash.includes('eye')) {
-        return 'seat_preview';
-      }
-      if (hash.includes('seat') || hash.includes('map')) {
-        return 'seat_map';
-      }
-    }
-    return 'landing';
-  });
-
-  // Modal Dialogs
-  const [showCityModal, setShowCityModal] = useState(false);
-  const [showTheatreModal, setShowTheatreModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  // Active Screen flow: 'landing' -> 'seat_map' -> 'seat_preview' -> 'confirmation'
+  const [currentScreen, setCurrentScreen] = useState<'landing' | 'seat_map' | 'seat_preview' | 'confirmation'>('landing');
 
   // User Profile / Auth State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    name: 'Kaushal',
+    name: 'Kaushal Maran',
     phone: '+91 98401 23456',
     email: 'kaushalmaran@vels.in',
     isLoggedIn: true,
   });
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Desktop view mode toggle (Mobile frame vs Fullscreen)
-  const [isFramed, setIsFramed] = useState(false);
-
-  // Keep URL hash in sync with current screen for browser back/forward and bookmarking
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (currentScreen === 'seat_preview') {
-      window.location.hash = '3d';
-    } else if (currentScreen === 'seat_map') {
-      window.location.hash = 'seat_map';
-    } else if (currentScreen === 'landing') {
-      window.location.hash = 'landing';
-    } else if (currentScreen === 'confirmation') {
-      window.location.hash = 'ticket';
-    }
-  }, [currentScreen]);
-
-  useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.includes('preview') || hash.includes('3d') || hash.includes('eye')) {
-        setCurrentScreen('seat_preview');
-      } else if (hash.includes('landing') || hash.includes('home') || hash.includes('movies')) {
-        setCurrentScreen('landing');
-      } else if (hash.includes('seat') || hash.includes('map')) {
-        setCurrentScreen('seat_map');
-      }
-    };
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
-  }, []);
+  // Checkout modal
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
 
   const selectedSeats = seats.filter((s) => selectedSeatIds.includes(s.id));
   const activePreviewSeat =
@@ -99,36 +55,19 @@ export default function App() {
     seats.find((s) => s.id === 'F8') ||
     seats[0];
 
-  // Handle theatre switch
-  const handleSelectTheatre = (theatre: Theatre) => {
-    setCurrentTheatre(theatre);
-    setCurrentCity(theatre.city);
-    setSeats(generateTheatreSeats(theatre));
-    setShowtimes(theatre.showtimes);
-    setSelectedShowtimeId(theatre.showtimes[0]?.id || 'st-1');
-  };
-
-  // Handle city switch
-  const handleSelectCity = (city: City) => {
-    setCurrentCity(city.name);
-    const firstTheatreInCity = THEATRES_LIST.find(
-      (th) => th.city.toLowerCase() === city.name.toLowerCase()
-    );
-    if (firstTheatreInCity) {
-      handleSelectTheatre(firstTheatreInCity);
-    }
-  };
-
-  // Handle seat click in map (supports selecting 1, 2, or more seats!)
+  // Handle seat click in map (Supports booking 1, 2, or more seats!)
   const handleSelectSeat = (seat: Seat) => {
     if (seat.status === 'occupied') return;
+
     if (selectedSeatIds.includes(seat.id)) {
+      // Deselect seat
       const next = selectedSeatIds.filter((id) => id !== seat.id);
       setSelectedSeatIds(next);
       if (focusedPreviewSeatId === seat.id && next.length > 0) {
         setFocusedPreviewSeatId(next[0]);
       }
     } else {
+      // Select additional seat (e.g. 2, 3 or more seats)
       const next = [...selectedSeatIds, seat.id];
       setSelectedSeatIds(next);
       setFocusedPreviewSeatId(seat.id);
@@ -150,23 +89,35 @@ export default function App() {
     setCurrentScreen('seat_map');
   };
 
-  // Select movie from Landing Page: opens theatre & showtime picker for that movie
-  const handleSelectMovieFromLanding = (movie: Movie) => {
-    setActiveMovie(movie);
-    setShowTheatreModal(true);
+  // Switch Auditorium Screen from Settings
+  const handleSelectScreenConfig = (screen: ScreenConfig) => {
+    setCurrentScreenConfig(screen);
+    const newSeats = generateSeatsForScreen(screen.id);
+    setSeats(newSeats);
+
+    // Keep F8 if available or first available seat
+    const defaultSeat = newSeats.find((s) => s.id === 'F8' && s.status === 'available') || newSeats.find((s) => s.status === 'available') || newSeats[0];
+    setSelectedSeatIds([defaultSeat.id]);
+    setFocusedPreviewSeatId(defaultSeat.id);
+    setShowSettingsModal(false);
   };
 
-  // Choose theatre and showtime from modal: jumps straight into Seat Map
-  const handleSelectTheatreAndShowtime = (theatre: Theatre, showtime: Showtime) => {
-    handleSelectTheatre(theatre);
-    setSelectedShowtimeId(showtime.id);
+  // From Landing Page to Seat Map with chosen movie and optional showtime
+  const handleSelectMovieAndBook = (movie: Movie, showtimeId?: string) => {
+    setActiveMovie(movie);
+    if (showtimeId) {
+      setSelectedShowtimeId(showtimeId);
+    }
+    const freshSeats = generateSeatsForScreen(currentScreenConfig.id);
+    setSeats(freshSeats);
+    setSelectedSeatIds(['F8']);
+    setFocusedPreviewSeatId('F8');
     setCurrentScreen('seat_map');
   };
 
   // Confirm Booking from Checkout
   const handleConfirmBooking = (booking: Booking) => {
-    // Mark booked seats as occupied in live state
-    const bookedIds = new Set(booking.seats ? booking.seats.map((s) => s.id) : [booking.seat.id]);
+    const bookedIds = new Set(booking.seats.map((s) => s.id));
     setSeats((prev) =>
       prev.map((s) => (bookedIds.has(s.id) ? { ...s, status: 'occupied' } : s))
     );
@@ -177,52 +128,40 @@ export default function App() {
 
   // Render Inner Cinema Application Content
   const renderAppContent = () => {
-    // 1. Landing Page
+    // 1. Landing Page: Minimal black and white cinema portal
     if (currentScreen === 'landing') {
       return (
-        <LandingPage
-          currentCity={currentCity}
-          currentTheatre={currentTheatre}
-          onSelectMovie={handleSelectMovieFromLanding}
-          onSelectTheatre={(th) => {
-            handleSelectTheatre(th);
-            setCurrentScreen('seat_map');
-          }}
-          onOpenCitySelect={() => setShowCityModal(true)}
+        <CinemaLandingPage
+          onSelectMovieAndBook={handleSelectMovieAndBook}
           onOpenLogin={() => setShowLoginModal(true)}
-          onDirect3DPreview={() => setCurrentScreen('seat_preview')}
           currentUser={currentUser}
         />
       );
     }
 
-    // 2. Booking Confirmation Pass
+    // 2. Booking Confirmation Pass (Itemizes all booked seats)
     if (currentScreen === 'confirmation' && confirmedBooking) {
       return (
-        <BookingConfirmation
-          booking={confirmedBooking}
-          onDone={() => {
-            setConfirmedBooking(null);
-            setCurrentScreen('seat_map');
-          }}
-          onView3D={() => setCurrentScreen('seat_preview')}
-          onHome={() => {
-            setConfirmedBooking(null);
-            setCurrentScreen('landing');
-          }}
-        />
+        <div className="w-full h-full max-w-lg mx-auto flex flex-col">
+          <BookingConfirmation
+            booking={confirmedBooking}
+            onDone={() => {
+              setConfirmedBooking(null);
+              setSelectedSeatIds(['F8']);
+              setCurrentScreen('seat_map');
+            }}
+          />
+        </div>
       );
     }
 
-    // 3. Seat-View Preview (STATE B) with Cubic-Bezier Camera Tween & 360° Drag Look-Around
+    // 3. Seat-View Preview (STATE B) with React-Three-Fiber Camera Swoop & Multi-Seat Switcher
     if (currentScreen === 'seat_preview' && activePreviewSeat) {
       return (
         <SeatPreviewView
           seats={seats}
           seat={activePreviewSeat}
           selectedSeats={selectedSeats}
-          movie={activeMovie}
-          currency={currentTheatre.currency}
           onSelectSeatToPreview={(s) => setFocusedPreviewSeatId(s.id)}
           onBackToSeatMap={handleBackToSeatMap}
           onBookSeat={() => setShowCheckout(true)}
@@ -230,48 +169,37 @@ export default function App() {
       );
     }
 
-    // 4. Seat Selection (STATE A: Multiplex & City Seating Matrix)
-    const activeShowtime = showtimes.find((s) => s.id === selectedShowtimeId);
-
+    // 4. Seat Selection (STATE A: Exact Reproduction of Video Frame 00:00)
     return (
-      <div className="relative w-full h-full bg-[#0B0D12] flex flex-col justify-between overflow-hidden select-none">
-        {/* Top Header with City, Multiplex & Showtime selector */}
+      <div className="w-full h-full max-w-2xl mx-auto flex flex-col justify-between overflow-hidden bg-[#050505]">
+        {/* Top Header matching Video Frame 00:00 */}
         <CinemaHeader
-          movieTitle={`${activeMovie.title} - ${activeMovie.language}`}
-          theatreSubtitle={`${currentTheatre.name} (${currentTheatre.city}) · ${currentTheatre.hall} | ${selectedDate.split(',')[0]} | ${activeShowtime?.time || currentTheatre.showtimes[0].time}`}
+          cinemaName={INDIAN_CINEMA_INFO.shortName}
+          hallAndDate={`${activeMovie.title} · ${currentScreenConfig.shortName} · Fri 14 Nov`}
           showtimes={showtimes}
           selectedShowtimeId={selectedShowtimeId}
           onSelectShowtime={setSelectedShowtimeId}
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
           onBackClick={() => setCurrentScreen('landing')}
-          onOpenLogin={() => setShowLoginModal(true)}
-          onOpenTheatreSelect={() => setShowTheatreModal(true)}
+          onOpenSettings={() => setShowSettingsModal(true)}
           userName={currentUser?.name}
-          currentStep={2}
         />
 
-        {/* Interactive Scrollable Seat Map with Framer Motion Staggered Row Entrance */}
+        {/* Scrollable Auditorium Seat Map with curved screen arc and multi-seat selection */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
           <SeatMap
             seats={seats}
-            selectedSeatId={focusedPreviewSeatId}
             selectedSeatIds={selectedSeatIds}
             onSelectSeat={handleSelectSeat}
-            eliteTierLabel={`${currentTheatre.currency}${currentTheatre.elitePrice} ELITE`}
-            economyTierLabel={`${currentTheatre.currency}${currentTheatre.economyPrice} ECONOMY`}
-            currency={currentTheatre.currency}
+            showSweetSpotGuide={showSweetSpotGuide}
           />
 
-          {/* Seat Legend */}
+          {/* 4-Item Seat Legend matching Video Frame 00:00 (Available, Taken, Recliner, Selected) */}
           <SeatLegend />
         </div>
 
-        {/* Bottom Booking Summary Bar */}
+        {/* Bottom Booking Summary Bar (Supports 1, 2, or more seats!) */}
         <SeatBottomBar
-          selectedSeat={activePreviewSeat}
           selectedSeats={selectedSeats}
-          currency={currentTheatre.currency}
           onContinue={handleContinueToPreview}
         />
       </div>
@@ -279,60 +207,31 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#0B0D12] text-[#F0F1F4] flex flex-col items-center justify-center p-0 font-sans relative overflow-hidden">
-      {/* Top Global Utility Bar (Home Navigation & Viewport Mode) */}
-      <div className="absolute top-3 right-3 z-50 flex items-center gap-2">
-        {currentScreen !== 'landing' && (
-          <button
-            onClick={() => setCurrentScreen('landing')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141822]/90 border border-white/[0.08] hover:border-white/[0.16] text-[#D1D5DF] hover:text-[#F0F1F4] transition text-[11px] font-normal cursor-pointer"
-            title="Go to movies catalogue"
-          >
-            <Home className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
-            <span className="hidden sm:inline">Landing page</span>
-          </button>
-        )}
-
-        <button
-          onClick={() => setIsFramed(!isFramed)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141822]/90 border border-white/[0.08] hover:border-white/[0.16] text-[#D1D5DF] hover:text-[#F0F1F4] transition text-[11px] font-normal cursor-pointer"
-          title={isFramed ? "Switch to fullscreen viewport" : "Switch to mobile frame"}
-        >
-          {isFramed ? (
-            <>
-              <Maximize2 className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
-              <span>Full screen</span>
-            </>
-          ) : (
-            <>
-              <Smartphone className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
-              <span>Mobile frame</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Main Container: Adapts automatically to window height with zero clipping */}
-      <div
-        className={`w-full h-full flex flex-col transition-all duration-200 ${
-          isFramed
-            ? 'max-w-[440px] max-h-[96dvh] my-auto rounded-[32px] border border-white/[0.08] overflow-hidden'
-            : 'w-full h-full'
-        }`}
-      >
+    <div className="h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] flex flex-col font-sans relative overflow-hidden">
+      {/* Responsive Main Container (Auto-aligns without artificial mobile mockup frames or overlays) */}
+      <main className="w-full h-full flex flex-col overflow-hidden">
         {renderAppContent()}
-      </div>
+      </main>
 
-      {/* Checkout Modal */}
-      {showCheckout && activePreviewSeat && (
+      {/* Auditorium Screen & System Settings Modal */}
+      {showSettingsModal && (
+        <AuditoriumSettingsModal
+          currentScreenId={currentScreenConfig.id}
+          onSelectScreen={handleSelectScreenConfig}
+          projectionMode={projectionMode}
+          onChangeProjectionMode={setProjectionMode}
+          audioProfile={audioProfile}
+          onChangeAudioProfile={setAudioProfile}
+          showSweetSpotGuide={showSweetSpotGuide}
+          onToggleSweetSpotGuide={() => setShowSweetSpotGuide(!showSweetSpotGuide)}
+          onClose={() => setShowSettingsModal(false)}
+        />
+      )}
+
+      {/* Checkout Modal (Supports multiple seats with itemized total) */}
+      {showCheckout && selectedSeats.length > 0 && (
         <CheckoutModal
-          seat={activePreviewSeat}
           seats={selectedSeats}
-          movie={activeMovie}
-          showtime={showtimes.find((s) => s.id === selectedShowtimeId)}
-          theatre={currentTheatre}
-          selectedDate={selectedDate}
-          currentUser={currentUser}
           onClose={() => setShowCheckout(false)}
           onConfirmBooking={handleConfirmBooking}
         />
@@ -343,26 +242,6 @@ export default function App() {
         <LoginModal
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={(user) => setCurrentUser(user)}
-        />
-      )}
-
-      {/* Global City Select Modal */}
-      {showCityModal && (
-        <CitySelectModal
-          currentCity={currentCity}
-          onSelectCity={handleSelectCity}
-          onClose={() => setShowCityModal(false)}
-        />
-      )}
-
-      {/* Theatre & Showtime Selection Modal */}
-      {showTheatreModal && (
-        <TheatreSelectModal
-          movie={activeMovie}
-          currentTheatreId={currentTheatre.id}
-          selectedCity={currentCity}
-          onSelectTheatreAndShowtime={handleSelectTheatreAndShowtime}
-          onClose={() => setShowTheatreModal(false)}
         />
       )}
     </div>

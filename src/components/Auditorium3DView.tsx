@@ -2,66 +2,54 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Seat } from '../types';
-import { RotateCcw, Compass } from 'lucide-react';
 import { interpolateCameraCoordinates } from './SeatPreviewView';
 
 interface Auditorium3DViewProps {
   seats: Seat[];
   selectedSeat: Seat;
+  viewPhase?: 'transition' | 'eye_level';
   replayTrigger?: number;
-  screenImage?: string;
   onTransitionComplete?: () => void;
 }
-
-// Scratch vector helpers for zero GC in 60fps render loop
-const _targetCamPos = new THREE.Vector3();
-const _targetLookAt = new THREE.Vector3();
-const _currentCamPos = new THREE.Vector3();
-const _currentLookAt = new THREE.Vector3();
 
 export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
   seats,
   selectedSeat,
   replayTrigger = 0,
-  screenImage,
   onTransitionComplete,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
 
-  // Flight timing and cubic-bezier interpolation state
-  const startTimeRef = useRef<number>(performance.now());
-  const isFlyingRef = useRef<boolean>(true);
-  const hasCompletedRef = useRef<boolean>(false);
-  const onTransitionCompleteRef = useRef(onTransitionComplete);
-  onTransitionCompleteRef.current = onTransitionComplete;
-
-  // Look-around angles (yaw: horizontal, pitch: vertical)
+  // Look-around angles (yaw: horizontal, pitch: vertical, zoom)
   const lookAroundRef = useRef({ yaw: 0, pitch: 0, zoom: 0 });
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [, setHasInteracted] = useState(false);
+
+  // Flight animation state
+  const flightStartRef = useRef<number>(performance.now());
+  const isFlyingRef = useRef<boolean>(true);
+  const flightCompletedRef = useRef<boolean>(false);
+  const FLIGHT_DURATION = 1350; // ms for the cinematic swoop
 
   const selectedSeatRef = useRef(selectedSeat);
   selectedSeatRef.current = selectedSeat;
 
-  // Reset animation whenever seat or replay changes
+  const onTransitionCompleteRef = useRef(onTransitionComplete);
+  onTransitionCompleteRef.current = onTransitionComplete;
+
+  // Reset / Replay camera flight whenever seat or replayTrigger changes
   useEffect(() => {
-    startTimeRef.current = performance.now();
+    flightStartRef.current = performance.now();
     isFlyingRef.current = true;
-    hasCompletedRef.current = false;
+    flightCompletedRef.current = false;
     lookAroundRef.current = { yaw: 0, pitch: 0, zoom: 0 };
     setHasInteracted(false);
   }, [selectedSeat.id, replayTrigger]);
-
-  // Reset Look-Around to Center Screen
-  const handleResetLookAround = () => {
-    lookAroundRef.current = { yaw: 0, pitch: 0, zoom: 0 };
-    setHasInteracted(false);
-  };
 
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    // Software WebGL Guard (per Three.js skill)
+    // Software WebGL Guard
     const isSoftwareGl = (() => {
       const probeCanvas = document.createElement('canvas');
       const gl = probeCanvas.getContext('webgl2');
@@ -83,7 +71,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.18;
     container.appendChild(renderer.domElement);
 
     // Scene & Fog
@@ -93,17 +81,15 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
-      52,
+      58,
       container.clientWidth / container.clientHeight,
       0.1,
       100
     );
 
-    // Initial camera position
-    camera.position.set(0, 16, 15);
-    camera.lookAt(0, 0, 8);
-    _currentCamPos.copy(camera.position);
-    _currentLookAt.set(0, 0, 8);
+    // Initial camera position [0, 5, 10]
+    camera.position.set(0, 5, 10);
+    camera.lookAt(0, 0.8, 6.0);
 
     // Studio Environment Reflections via RoomEnvironment
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -118,7 +104,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     topLight.position.set(0, 16, 10);
     scene.add(topLight);
 
-    const screenBounceLight = new THREE.PointLight('#fce7c8', 1.5, 30);
+    const screenBounceLight = new THREE.PointLight('#fce7c8', 1.6, 32);
     screenBounceLight.position.set(0, 4.4, 2);
     scene.add(screenBounceLight);
 
@@ -128,27 +114,53 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
 
     // --- Build Cinema Screen ---
     const base = import.meta.env.BASE_URL || '/';
-    const defaultScreen = `${base.replace(/\/$/, '')}/dune_clean_screen.jpg`;
-    const screenUrl = screenImage
-      ? (screenImage.startsWith('/') ? `${base.replace(/\/$/, '')}${screenImage}` : screenImage)
-      : defaultScreen;
+    const cleanScreenUrl = `${base.replace(/\/$/, '')}/dune_clean_screen.jpg`;
+
+    // Canvas fallback texture generator
+    const createFallbackScreenTexture = () => {
+      const cvs = document.createElement('canvas');
+      cvs.width = 1024;
+      cvs.height = 512;
+      const ctx = cvs.getContext('2d')!;
+      const grad = ctx.createLinearGradient(0, 0, 1024, 512);
+      grad.addColorStop(0, '#100a08');
+      grad.addColorStop(0.5, '#e8974a');
+      grad.addColorStop(1, '#0c0704');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 512);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('CINESCAPE IMAX 4K LASER', 512, 230);
+      ctx.font = '22px "Inter", sans-serif';
+      ctx.fillStyle = '#fce7c8';
+      ctx.fillText('AUDITORIUM 3 · REFERENCE CINEMA EXPERIENCE', 512, 280);
+
+      const t = new THREE.CanvasTexture(cvs);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
 
     const textureLoader = new THREE.TextureLoader();
-    const movieTexture = textureLoader.load(
-      screenUrl,
-      undefined,
-      undefined,
-      () => {
-        if (screenUrl !== defaultScreen) {
-          textureLoader.load(defaultScreen, (fallbackTex) => {
-            fallbackTex.colorSpace = THREE.SRGBColorSpace;
-            screenMat.map = fallbackTex;
-            screenMat.emissiveMap = fallbackTex;
-            screenMat.needsUpdate = true;
-          });
+    let movieTexture: THREE.Texture;
+    try {
+      movieTexture = textureLoader.load(
+        cleanScreenUrl,
+        () => {
+          renderer.render(scene, camera);
+        },
+        undefined,
+        () => {
+          const fallback = createFallbackScreenTexture();
+          screenMat.map = fallback;
+          screenMat.emissiveMap = fallback;
+          screenMat.needsUpdate = true;
         }
-      }
-    );
+      );
+    } catch {
+      movieTexture = createFallbackScreenTexture();
+    }
     movieTexture.colorSpace = THREE.SRGBColorSpace;
 
     // Curved IMAX Screen Geometry
@@ -183,7 +195,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     frameMesh.position.set(0, 4.4, -0.15);
     scene.add(frameMesh);
 
-    // --- Build Red Cinema Chairs (Composite Models matching reference) ---
+    // --- Build Red Cinema Chairs ---
     const redVelvetMat = new THREE.MeshStandardMaterial({
       color: '#8e1b21',
       roughness: 0.65,
@@ -198,7 +210,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
       c.fillStyle = '#55E6A5';
       c.fillRect(0, 0, 128, 128);
       c.fillStyle = '#050505';
-      c.font = 'bold 50px "Inter", sans-serif';
+      c.font = 'bold 52px "Inter", sans-serif';
       c.textAlign = 'center';
       c.textBaseline = 'middle';
       c.fillText(String(seatNum), 64, 64);
@@ -261,7 +273,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
 
     // Tiered stadium riser steps
     for (let r = 0; r < 10; r++) {
-      const riserZ = 5.2 + r * 1.1;
+      const riserZ = 5.2 + r * 1.15;
       const riserY = (r * 0.32) / 2;
       const stepMesh = new THREE.Mesh(
         new THREE.BoxGeometry(16, r * 0.32 + 0.1, 1.25),
@@ -291,7 +303,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
         roughness: 0.3,
         metalness: 0.1,
         emissive: '#55E6A5',
-        emissiveIntensity: 0.45,
+        emissiveIntensity: 0.55,
       });
 
       seats.forEach((seat) => {
@@ -341,9 +353,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
       prevPointerX = e.clientX;
       prevPointerY = e.clientY;
 
-      // Update look around angles smoothly
       lookAroundRef.current.yaw += deltaX * 0.0035;
-      // Clamp vertical pitch so user can look at ceiling or floor comfortably
       lookAroundRef.current.pitch = Math.max(
         -0.45,
         Math.min(0.45, lookAroundRef.current.pitch - deltaY * 0.003)
@@ -359,7 +369,6 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
       } catch (_) {}
     };
 
-    // Mouse wheel zoom
     const onWheel = (e: WheelEvent) => {
       if (isFlyingRef.current) return;
       e.preventDefault();
@@ -378,7 +387,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
     dom.addEventListener('pointerup', onPointerUp);
     dom.addEventListener('wheel', onWheel, { passive: false });
 
-    // Animation Loop with Cubic-Bezier Camera Tweening
+    // Animation Loop with Sophisticated 3D Camera Cubic-Bezier Interpolation
     let frameId = 0;
 
     const animate = () => {
@@ -386,43 +395,41 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
 
       const selSeat = selectedSeatRef.current;
       const { yaw, pitch, zoom } = lookAroundRef.current;
-      const aspect = container.clientWidth / container.clientHeight;
-      const baseFov = aspect < 1.0 ? 56 : 50;
+      const baseFov = container.clientWidth / container.clientHeight < 1.0 ? 56 : 50;
 
       if (isFlyingRef.current) {
-        // High-end cinematic camera flight from [0, 5, 10] to [seat.x, 1.2, seat.z + 0.8]
-        const elapsed = performance.now() - startTimeRef.current;
-        const rawT = Math.min(1.0, elapsed / 1400); // 1.4s smooth flight
-        const camData = interpolateCameraCoordinates(selSeat, rawT);
+        // --- 3D CAMERA FLIGHT INTERPOLATION (Auditorium View [0, 5, 10] -> Eye-level [seat.x, 1.2, seat.z + 0.8]) ---
+        const elapsed = performance.now() - flightStartRef.current;
+        const rawT = Math.min(1.0, elapsed / FLIGHT_DURATION);
 
-        camera.position.set(camData.position[0], camData.position[1], camData.position[2]);
-        camera.lookAt(camData.lookAt[0], camData.lookAt[1], camData.lookAt[2]);
-        camera.fov = aspect < 1.0 ? Math.max(54, camData.fov + 4) : camData.fov;
+        const { position, lookAt, fov } = interpolateCameraCoordinates(selSeat, rawT);
+
+        camera.position.set(position[0], position[1], position[2]);
+        camera.lookAt(lookAt[0], lookAt[1], lookAt[2]);
+        camera.fov = fov;
         camera.updateProjectionMatrix();
 
         if (rawT >= 1.0) {
           isFlyingRef.current = false;
-          if (!hasCompletedRef.current) {
-            hasCompletedRef.current = true;
+          if (!flightCompletedRef.current) {
+            flightCompletedRef.current = true;
             onTransitionCompleteRef.current?.();
           }
         }
       } else {
-        // Eye-level Seated First-Person View [seat.x, 1.2, seat.z + 0.8] with 360° Drag Look-Around
+        // --- SEATED EYE-LEVEL VIEW [seat.x, 1.2, seat.z + 0.8] WITH 360° DRAG LOOK-AROUND ---
         const eyeX = selSeat.x;
         const eyeY = 1.2;
         const eyeZ = selSeat.z + 0.8;
         camera.position.set(eyeX, eyeY, eyeZ);
 
-        // Forward look vector based on user yaw and pitch
+        // Forward look vector relative to screen
         const forwardDist = Math.max(4.0, selSeat.z);
-        const lookTargetX = Math.sin(yaw) * forwardDist;
-        const lookTargetZ = eyeZ - Math.cos(yaw) * forwardDist;
-        const lookTargetY = 4.2 + Math.tan(pitch) * forwardDist;
+        const targetX = Math.sin(yaw) * forwardDist;
+        const targetZ = eyeZ - Math.cos(yaw) * forwardDist;
+        const targetY = 4.2 + Math.tan(pitch) * forwardDist;
 
-        camera.lookAt(lookTargetX, lookTargetY, lookTargetZ);
-
-        // Apply user zoom to FOV
+        camera.lookAt(targetX, targetY, targetZ);
         camera.fov = Math.max(34, Math.min(70, baseFov - zoom));
         camera.updateProjectionMatrix();
       }
@@ -442,7 +449,7 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
       camera.aspect = aspect;
 
       if (aspect < 1.0) {
-        camera.fov = Math.max(52, Math.min(68, 50 / aspect * 0.74));
+        camera.fov = Math.max(52, Math.min(68, (50 / aspect) * 0.74));
       } else {
         camera.fov = 50;
       }
@@ -481,47 +488,6 @@ export const Auditorium3DView: React.FC<Auditorium3DViewProps> = ({
   return (
     <div className="w-full h-full relative overflow-hidden bg-[#050505] select-none">
       <div ref={mountRef} className="w-full h-full block" />
-
-      {/* 360° Look-Around HUD (Quiet chrome) */}
-      {!hasInteracted ? (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex items-center gap-2 bg-[#0E1118]/90 backdrop-blur-md border border-white/[0.08] px-3.5 py-1.5 rounded-full transition-opacity duration-300">
-          <Compass className="w-3.5 h-3.5 text-[#55E6A5]" strokeWidth={1.5} />
-          <span className="text-[11px] text-[#A3A9B8] font-normal">
-            Drag to look around in 360° · Scroll to zoom
-          </span>
-        </div>
-      ) : (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-[#0E1118]/90 backdrop-blur-md border border-white/[0.08] p-1 rounded-full">
-          <button
-            onClick={handleResetLookAround}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#D1D5DF] hover:text-[#55E6A5] text-[11px] font-normal transition cursor-pointer"
-            title="Reset to screen center"
-          >
-            <RotateCcw className="w-3 h-3 text-[#55E6A5]" strokeWidth={1.5} />
-            <span>Reset front</span>
-          </button>
-          <button
-            onClick={() => {
-              lookAroundRef.current.zoom = Math.min(12, lookAroundRef.current.zoom + 2);
-              setHasInteracted(true);
-            }}
-            className="w-6 h-6 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#A3A9B8] hover:text-[#F0F1F4] flex items-center justify-center text-xs font-mono transition cursor-pointer"
-            title="Zoom in"
-          >
-            +
-          </button>
-          <button
-            onClick={() => {
-              lookAroundRef.current.zoom = Math.max(-8, lookAroundRef.current.zoom - 2);
-              setHasInteracted(true);
-            }}
-            className="w-6 h-6 rounded-full bg-[#141822] hover:bg-[#1C2230] text-[#A3A9B8] hover:text-[#F0F1F4] flex items-center justify-center text-xs font-mono transition cursor-pointer"
-            title="Zoom out"
-          >
-            -
-          </button>
-        </div>
-      )}
     </div>
   );
 };
