@@ -8,6 +8,7 @@ interface CheckoutModalProps {
   movie?: Movie;
   showtime?: Showtime;
   theatre?: Theatre;
+  selectedDate?: string;
   currentUser?: UserProfile | null;
   onClose: () => void;
   onConfirmBooking: (booking: Booking) => void;
@@ -18,6 +19,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   movie,
   showtime,
   theatre,
+  selectedDate,
   currentUser,
   onClose,
   onConfirmBooking,
@@ -36,6 +38,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const hallName = theatre ? theatre.hall : CINEMA_INFO.hall;
   const showtimeStr = showtime ? showtime.time : CINEMA_INFO.showtime;
   const showtimeFormat = showtime ? showtime.format : (theatre?.format || CINEMA_INFO.movieFormat);
+  const bookingDate = selectedDate || CINEMA_INFO.date;
   const customerName = currentUser?.name || 'Kaushal Maran';
   const customerPhone = currentUser?.phone || '+91 98401 23456';
 
@@ -52,7 +55,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         language: movieLang,
         theatreName,
         hallName,
-        date: CINEMA_INFO.date,
+        date: bookingDate,
         showtime: showtimeStr,
         seat,
         ticketPrice: seat.price,
@@ -102,7 +105,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {showtimeFormat}
               </span>
               <span className="text-xs text-[#888888] font-mono">
-                {CINEMA_INFO.date} · {showtimeStr}
+                {bookingDate} · {showtimeStr}
               </span>
             </div>
             <h4 className="text-[#F5F5F5] font-bold text-sm">

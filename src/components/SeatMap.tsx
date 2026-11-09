@@ -71,6 +71,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
               seat={seat}
               isSelected={seat.id === selectedSeatId}
               isRedUi={uiMode === 'red'}
+              currency={currency}
               onClick={() => onSelectSeat(seat)}
             />
           ))}
@@ -87,6 +88,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
               seat={seat}
               isSelected={seat.id === selectedSeatId}
               isRedUi={uiMode === 'red'}
+              currency={currency}
               onClick={() => onSelectSeat(seat)}
             />
           ))}
@@ -103,6 +105,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
               seat={seat}
               isSelected={seat.id === selectedSeatId}
               isRedUi={uiMode === 'red'}
+              currency={currency}
               onClick={() => onSelectSeat(seat)}
             />
           ))}
@@ -183,6 +186,7 @@ interface SeatItemProps {
   seat: Seat;
   isSelected: boolean;
   isRedUi: boolean;
+  currency: string;
   onClick: () => void;
 }
 
@@ -190,6 +194,7 @@ const SeatItem: React.FC<SeatItemProps> = ({
   seat,
   isSelected,
   isRedUi,
+  currency,
   onClick,
 }) => {
   const isOccupied = seat.status === 'occupied';
@@ -203,7 +208,7 @@ const SeatItem: React.FC<SeatItemProps> = ({
         className={`w-[20px] h-[20px] sm:w-[22px] sm:h-[22px] ${
           isRedUi ? 'rounded-full' : 'rounded-[3px]'
         } bg-[#55E6A5] text-[#050505] font-extrabold text-[9px] flex items-center justify-center shadow-[0_0_14px_rgba(85,230,165,0.7)] scale-110 z-10 cursor-pointer transition transform`}
-        title={`Seat ${seat.id} (Selected - ₹${seat.price})`}
+        title={`Seat ${seat.id} (Selected - ${currency}${seat.price})`}
       >
         {formatNum}
       </button>
@@ -240,7 +245,7 @@ const SeatItem: React.FC<SeatItemProps> = ({
       <button
         onClick={onClick}
         className="w-[19px] h-[19px] sm:w-[21px] sm:h-[21px] rounded-full bg-[#181818] border border-[#2B2B2B] hover:border-[#55E6A5] hover:bg-[#222222] text-[#777777] hover:text-[#55E6A5] font-mono text-[8px] flex items-center justify-center transition active:scale-95 cursor-pointer"
-        title={`Seat ${seat.id} (${seat.tierLabel} - ₹${seat.price})`}
+        title={`Seat ${seat.id} (${seat.tierLabel})`}
       >
         {formatNum}
       </button>
@@ -251,7 +256,7 @@ const SeatItem: React.FC<SeatItemProps> = ({
     <button
       onClick={onClick}
       className="w-[18px] h-[17px] rounded-[3px] bg-[#141414] border border-[#2E5E4A] hover:border-[#55E6A5] text-[#7BA694] hover:text-[#55E6A5] font-mono text-[8px] flex items-center justify-center transition active:scale-95 cursor-pointer"
-      title={`Seat ${seat.id} (${seat.tierLabel} - ₹${seat.price})`}
+      title={`Seat ${seat.id} (${seat.tierLabel})`}
     >
       {formatNum}
     </button>

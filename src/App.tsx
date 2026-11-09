@@ -313,6 +313,7 @@ export default function App() {
           movie={activeMovie}
           showtime={showtimes.find((s) => s.id === selectedShowtimeId)}
           theatre={currentTheatre}
+          selectedDate={selectedDate}
           currentUser={currentUser}
           onClose={() => setShowCheckout(false)}
           onConfirmBooking={handleConfirmBooking}

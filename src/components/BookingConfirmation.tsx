@@ -19,7 +19,33 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
 
   const handleDownload = () => {
     setDownloaded(true);
-    setTimeout(() => setDownloaded(false), 3000);
+    // Create text receipt download fallback or print
+    try {
+      const ticketText = `================================================
+CINESCAPE DIGITAL BOARDING PASS
+================================================
+Reference:   ${booking.reference}
+Movie:       ${booking.movieTitle} (${booking.language})
+Cinema:      ${booking.theatreName}
+Screen:      ${booking.hallName}
+Date & Time: ${booking.date} · ${booking.showtime}
+Seat:        Row ${booking.seat.row}, Seat ${booking.seat.number} (${booking.seat.tier.toUpperCase()})
+Total Paid:  ${booking.currency || '₹'}${booking.total}
+Guest:       ${booking.customerName}
+================================================
+Present this QR pass at the entrance scanner.
+================================================`;
+      const blob = new Blob([ticketText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `CINESCAPE-PASS-${booking.reference}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (_) {}
+    setTimeout(() => setDownloaded(false), 3500);
   };
   return (
     <div className="w-full h-full bg-[#050505] flex flex-col items-center justify-between p-6 select-none animate-fade-in">
