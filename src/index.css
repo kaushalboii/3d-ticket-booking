@@ -1,18 +1,63 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    color-scheme: dark;
-  }
+@theme {
+  --color-grayscale-1: var(--color-grayscale-1);
+  --color-grayscale-2: var(--color-grayscale-2);
+  --color-grayscale-3: var(--color-grayscale-3);
+  --color-grayscale-4: var(--color-grayscale-4);
+  --color-grayscale-5: var(--color-grayscale-5);
+  --color-grayscale-6: var(--color-grayscale-6);
+  --color-grayscale-7: var(--color-grayscale-7);
+  --color-grayscale-8: var(--color-grayscale-8);
+  --color-grayscale-9: var(--color-grayscale-9);
+  --color-grayscale-10: var(--color-grayscale-10);
+  --color-grayscale-11: var(--color-grayscale-11);
+  --color-grayscale-12: var(--color-grayscale-12);
+  --color-green-9: var(--color-green-9);
+}
 
-  body {
-    background-color: #050505;
-    color: #F5F5F5;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+:root {
+  color-scheme: dark;
+
+  /* Default dark palette matching Radix Gray scale */
+  --color-grayscale-1: #0d0e11;
+  --color-grayscale-2: #141519;
+  --color-grayscale-3: #202228;
+  --color-grayscale-4: #282a32;
+  --color-grayscale-5: #32353f;
+  --color-grayscale-6: #3e424f;
+  --color-grayscale-7: #4e5363;
+  --color-grayscale-8: #73798c;
+  --color-grayscale-9: #8e95a9;
+  --color-grayscale-10: #acb3c6;
+  --color-grayscale-11: #cdd3e3;
+  --color-grayscale-12: #f3f5f8;
+  --color-green-9: #55E6A5;
+}
+
+.dark {
+  --color-grayscale-1: #0d0e11;
+  --color-grayscale-2: #141519;
+  --color-grayscale-3: #202228;
+  --color-grayscale-4: #282a32;
+  --color-grayscale-5: #32353f;
+  --color-grayscale-6: #3e424f;
+  --color-grayscale-7: #4e5363;
+  --color-grayscale-8: #73798c;
+  --color-grayscale-9: #8e95a9;
+  --color-grayscale-10: #acb3c6;
+  --color-grayscale-11: #cdd3e3;
+  --color-grayscale-12: #f3f5f8;
+  --color-green-9: #55E6A5;
+}
+
+body {
+  background-color: #050505;
+  color: #F5F5F5;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Subtle glow for mint green selected seat */

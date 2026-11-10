@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Movie, UserProfile } from '../types';
 import { INDIAN_MOVIES, INDIAN_SHOWTIMES, INDIAN_DATES, CINESCAPE_LOCATIONS } from '../data/indianCinemaData';
-import { Film, User, ChevronRight, ArrowRight, Sparkles, Star, ShieldCheck, Globe, Compass, Play } from 'lucide-react';
+import { Film, User, ChevronRight, ArrowRight, Sparkles, Star, ShieldCheck, Globe, Compass, Play, Ticket as TicketIcon, Image as ImageIcon } from 'lucide-react';
 import { ScreenArc } from './ScreenArc';
+import { CinemaTicket } from './CinemaTicket';
 
 interface CinemaLandingPageProps {
   onSelectMovieAndBook: (movie: Movie, showtimeId?: string) => void;
@@ -16,6 +17,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
   currentUser,
 }) => {
   const [selectedCityId, setSelectedCityId] = useState('mumbai');
+  const [heroMediaMode, setHeroMediaMode] = useState<'ticket' | 'poster'>('ticket');
   const featured = INDIAN_MOVIES[0]; // Scene - Tamil
   const currentCity = CINESCAPE_LOCATIONS.find((c) => c.id === selectedCityId) || CINESCAPE_LOCATIONS[0];
 
@@ -152,27 +154,65 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
               </div>
             </div>
 
-            {/* Right Column: High-contrast Minimal Poster Preview */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-[#222222] bg-[#0A0A0A] shadow-2xl group">
-                <img
-                  src={featured.backdrop}
-                  alt={featured.title}
-                  className="w-full h-full object-cover filter contrast-125 brightness-75 group-hover:scale-105 transition duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+            {/* Right Column: Interactive 3D Tactile Ticket or High-contrast Poster */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center">
+              {/* Media Mode Toggle */}
+              <div className="flex items-center gap-1 bg-[#111114] border border-[#222327] p-1 rounded-full mb-3 self-center shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setHeroMediaMode('ticket')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
+                    heroMediaMode === 'ticket'
+                      ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                      : 'text-[#888888] hover:text-[#F5F5F5]'
+                  }`}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>3D Physical Ticket</span>
+                </button>
 
-                <div className="absolute bottom-4 left-4 right-4 space-y-1">
-                  <div className="flex items-center justify-between text-xs text-white">
-                    <span className="font-bold tracking-tight">CINESCAPE · Audi 3</span>
-                    <span className="font-mono text-[#A1A1AA]">2h 35m</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-[#55E6A5]">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>First-Person 3D Sightline Guarantee</span>
+                <button
+                  type="button"
+                  onClick={() => setHeroMediaMode('poster')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
+                    heroMediaMode === 'poster'
+                      ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                      : 'text-[#888888] hover:text-[#F5F5F5]'
+                  }`}
+                >
+                  <ImageIcon className="w-3 h-3" />
+                  <span>Movie Poster</span>
+                </button>
+              </div>
+
+              {heroMediaMode === 'ticket' ? (
+                <div className="w-full flex justify-center py-1">
+                  <CinemaTicket
+                    movieTitle={featured.title}
+                    onBookNow={() => onSelectMovieAndBook(featured, 'st-2')}
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-[#222222] bg-[#0A0A0A] shadow-2xl group">
+                  <img
+                    src={featured.backdrop}
+                    alt={featured.title}
+                    className="w-full h-full object-cover filter contrast-125 brightness-75 group-hover:scale-105 transition duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                  <div className="absolute bottom-4 left-4 right-4 space-y-1">
+                    <div className="flex items-center justify-between text-xs text-white">
+                      <span className="font-bold tracking-tight">CINESCAPE · Audi 3</span>
+                      <span className="font-mono text-[#A1A1AA]">2h 35m</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-[#55E6A5]">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>First-Person 3D Sightline Guarantee</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
