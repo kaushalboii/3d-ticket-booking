@@ -35,7 +35,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
       {collapsed ? (
         <div className="flex items-center justify-between py-1.5 mt-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-bold text-[#55E6A5]">
+            <span className="text-xs uppercase font-bold text-[#E5A93C]">
               Row {seat.row}, Seat {seat.number}
             </span>
             <span className="text-[11px] text-[#888888]">
@@ -103,7 +103,7 @@ export const SeatInfoDrawer: React.FC<SeatInfoDrawerProps> = ({
                       key={i}
                       className={`w-1 h-1 rounded-full ${
                         isMatch
-                          ? 'bg-[#55E6A5] scale-125 shadow-sm shadow-[#55E6A5]'
+                          ? 'bg-[#E5A93C] scale-125 shadow-sm shadow-[#E5A93C]/50'
                           : 'bg-[#262626]'
                       }`}
                     />

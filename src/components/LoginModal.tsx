@@ -59,7 +59,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-[#1C1C1C] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#55E6A5]/15 border border-[#55E6A5]/30 flex items-center justify-center text-[#55E6A5]">
+            <div className="w-7 h-7 rounded-full bg-[#E5A93C]/15 border border-[#E5A93C]/30 flex items-center justify-center text-[#E5A93C]">
               <Smartphone className="w-3.5 h-3.5" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
-                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2.5 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#55E6A5] transition"
+                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2.5 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#E5A93C] transition"
                   required
                 />
               </div>
@@ -111,7 +111,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                     placeholder="10 digit mobile"
-                    className="flex-1 bg-[#080808] border border-[#222222] px-3.5 py-2.5 rounded-xl text-xs text-white font-mono placeholder:text-[#555555] focus:outline-none focus:border-[#55E6A5] transition"
+                    className="flex-1 bg-[#080808] border border-[#222222] px-3.5 py-2.5 rounded-xl text-xs text-white font-mono placeholder:text-[#555555] focus:outline-none focus:border-[#E5A93C] transition"
                     required
                   />
                 </div>
@@ -120,7 +120,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-full bg-[#55E6A5] hover:brightness-105 text-[#050505] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-[#55E6A5]/20 cursor-pointer mt-2"
+                className="w-full py-3 rounded-full bg-white hover:bg-neutral-200 text-[#070709] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-white/10 cursor-pointer mt-2"
               >
                 {isLoading ? (
                   <span>Sending OTP...</span>
@@ -147,7 +147,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   placeholder="Enter 4-digit OTP"
-                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-3 rounded-xl text-center text-lg font-mono tracking-widest text-[#55E6A5] focus:outline-none focus:border-[#55E6A5] transition"
+                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-3 rounded-xl text-center text-lg font-mono tracking-widest text-[#E5A93C] focus:outline-none focus:border-[#E5A93C] transition"
                   required
                 />
               </div>
@@ -155,7 +155,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-full bg-[#55E6A5] hover:brightness-105 text-[#050505] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-[#55E6A5]/20 cursor-pointer"
+                className="w-full py-3 rounded-full bg-white hover:bg-neutral-200 text-[#070709] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-1.5 shadow-md shadow-white/10 cursor-pointer"
               >
                 {isLoading ? (
                   <span>Verifying...</span>
@@ -188,7 +188,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </div>
 
           <div className="flex items-center justify-center gap-1 text-[10px] text-[#666666]">
-            <ShieldCheck className="w-3 h-3 text-[#55E6A5]" />
+            <ShieldCheck className="w-3 h-3 text-[#E5A93C]" />
             <span>Secure 256-bit encrypted authentication</span>
           </div>
         </div>

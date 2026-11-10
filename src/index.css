@@ -32,7 +32,8 @@
   --color-grayscale-10: #acb3c6;
   --color-grayscale-11: #cdd3e3;
   --color-grayscale-12: #f3f5f8;
-  --color-green-9: #55E6A5;
+  --color-green-9: #E5A93C;
+  --color-amber-9: #E5A93C;
 }
 
 .dark {
@@ -48,11 +49,12 @@
   --color-grayscale-10: #acb3c6;
   --color-grayscale-11: #cdd3e3;
   --color-grayscale-12: #f3f5f8;
-  --color-green-9: #55E6A5;
+  --color-green-9: #E5A93C;
+  --color-amber-9: #E5A93C;
 }
 
 body {
-  background-color: #050505;
+  background-color: #060608;
   color: #F5F5F5;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
@@ -60,9 +62,9 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Subtle glow for mint green selected seat */
+/* Subtle glow for champagne gold selected seat */
 .seat-selected-glow {
-  box-shadow: 0 0 14px rgba(85, 230, 165, 0.55), 0 0 2px rgba(85, 230, 165, 0.8);
+  box-shadow: 0 0 14px rgba(229, 169, 60, 0.55), 0 0 2px rgba(229, 169, 60, 0.8);
 }
 
 .screen-arc-glow {
@@ -76,7 +78,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #060608;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -85,5 +87,5 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #55E6A5;
+  background: #E5A93C;
 }

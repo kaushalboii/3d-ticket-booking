@@ -37,17 +37,17 @@ export const SeatBottomBar: React.FC<SeatBottomBarProps> = ({
         )}
       </div>
 
-      {/* Right Continue Button matching Video Frame 00:00 (Mint green capsule) */}
+      {/* Right Continue Button: High-taste minimal white pill with dark text */}
       <button
         disabled={!hasSeats}
         onClick={onContinue}
-        className={`px-7 py-3 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+        className={`px-7 py-3 rounded-full text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer ${
           hasSeats
-            ? 'bg-[#55E6A5] text-[#050505] shadow-lg shadow-[#55E6A5]/25 hover:brightness-105 active:scale-95'
-            : 'bg-[#181818] text-[#444444] cursor-not-allowed border border-[#222222]'
+            ? 'bg-white text-[#070709] shadow-md hover:bg-[#F2F2F5] active:scale-95'
+            : 'bg-[#141418] text-[#55555e] cursor-not-allowed border border-[#222228]'
         }`}
       >
-        {selectedSeats.length > 1 ? `Continue (${selectedSeats.length})` : 'Continue'}
+        {selectedSeats.length > 1 ? `Continue (${selectedSeats.length} Seats) →` : 'Continue to 3D Sightline →'}
       </button>
     </div>
   );

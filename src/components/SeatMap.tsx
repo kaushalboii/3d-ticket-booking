@@ -99,13 +99,13 @@ export const SeatMap: React.FC<SeatMapProps> = ({
                 key={rowLetter}
                 variants={rowVariants}
                 className={`flex items-center gap-2.5 min-w-max justify-center px-2 py-0.5 rounded-lg transition ${
-                  isSweetSpotRow ? 'bg-[#55E6A5]/[0.04] border border-[#55E6A5]/20' : ''
+                  isSweetSpotRow ? 'bg-[#E5A93C]/[0.04] border border-[#E5A93C]/20' : ''
                 }`}
               >
                 {/* Left Row Letter */}
                 <span
                   className={`w-4 text-[11px] font-semibold text-center font-mono select-none ${
-                    isSweetSpotRow ? 'text-[#55E6A5]' : 'text-[#555555]'
+                    isSweetSpotRow ? 'text-[#E5A93C]' : 'text-[#555555]'
                   }`}
                 >
                   {rowLetter}
@@ -179,7 +179,7 @@ const SeatCapsule: React.FC<SeatCapsuleProps> = ({
 }) => {
   const isOccupied = seat.status === 'occupied';
 
-  // 1. Selected State (Bright Mint Green capsule with number & smooth pop animation)
+  // 1. Selected State (Warm Champagne Gold capsule with number & smooth spring pop animation)
   if (isSelected) {
     return (
       <motion.button
@@ -189,7 +189,7 @@ const SeatCapsule: React.FC<SeatCapsuleProps> = ({
         whileTap={{ scale: 0.95 }}
         transition={{ type: 'spring', stiffness: 500, damping: 25 }}
         onClick={onClick}
-        className="w-[19px] h-[15px] sm:w-[23px] sm:h-[17px] rounded-[4px] bg-[#55E6A5] text-[#050505] font-extrabold text-[9px] flex items-center justify-center shadow-[0_0_12px_rgba(85,230,165,0.7)] z-10 cursor-pointer"
+        className="w-[19px] h-[15px] sm:w-[23px] sm:h-[17px] rounded-[4px] bg-[#E5A93C] text-[#050505] font-extrabold text-[9px] flex items-center justify-center shadow-[0_0_14px_rgba(229,169,60,0.65)] z-10 cursor-pointer"
         title={`Seat ${seat.id} (Selected · ₹${seat.price})`}
       >
         {seat.number}
@@ -212,7 +212,7 @@ const SeatCapsule: React.FC<SeatCapsuleProps> = ({
     return (
       <button
         onClick={onClick}
-        className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#161920] border border-[#3A4150] hover:border-[#55E6A5] hover:bg-[#202530] transition active:scale-95 cursor-pointer"
+        className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#161920] border border-[#3A4150] hover:border-[#E5A93C] hover:bg-[#202530] transition active:scale-95 cursor-pointer"
         title={`Seat ${seat.id} (Recliner · ₹${seat.price})`}
       />
     );
@@ -222,7 +222,7 @@ const SeatCapsule: React.FC<SeatCapsuleProps> = ({
   return (
     <button
       onClick={onClick}
-      className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#1F2228] border border-[#2A303C] hover:border-[#55E6A5] hover:bg-[#2A303C] transition active:scale-95 cursor-pointer"
+      className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#1F2228] border border-[#2A303C] hover:border-[#E5A93C] hover:bg-[#2A303C] transition active:scale-95 cursor-pointer"
       title={`Seat ${seat.id} (Standard · ₹${seat.price})`}
     />
   );

@@ -35,7 +35,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
               <span className="text-base font-black tracking-widest text-white">
                 CINESCAPE
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#55E6A5]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C]" />
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#121212] border border-[#262626] text-[#A0A0A0] font-mono tracking-tight">
                 GLOBAL FLAGSHIP
               </span>
@@ -72,7 +72,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
           onClick={onOpenLogin}
           className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#111111] hover:bg-[#1A1A1A] border border-[#262626] text-xs font-semibold text-[#E4E4E7] transition cursor-pointer shadow-sm"
         >
-          <User className="w-3.5 h-3.5 text-[#55E6A5]" />
+          <User className="w-3.5 h-3.5 text-[#E5A93C]" />
           <span>{currentUser?.isLoggedIn ? currentUser.name : 'Sign In'}</span>
         </button>
       </header>
@@ -142,11 +142,11 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
               <div className="pt-3 flex flex-wrap items-center gap-4">
                 <button
                   onClick={() => onSelectMovieAndBook(featured, 'st-2')}
-                  className="px-7 py-3.5 rounded-full bg-[#55E6A5] text-[#050505] font-extrabold text-xs tracking-tight hover:brightness-105 transition flex items-center gap-2 shadow-xl shadow-[#55E6A5]/25 active:scale-95 cursor-pointer"
+                  className="px-7 py-3.5 rounded-full bg-white text-[#070709] font-bold text-xs tracking-tight hover:bg-neutral-200 transition flex items-center gap-2 shadow-xl shadow-white/10 active:scale-95 cursor-pointer"
                 >
-                  <Compass className="w-4 h-4 text-[#050505]" />
+                  <Compass className="w-4 h-4 text-[#070709]" />
                   <span>Select Seats & 3D Preview (₹190)</span>
-                  <ArrowRight className="w-4 h-4 text-[#050505]" />
+                  <ArrowRight className="w-4 h-4 text-[#070709]" />
                 </button>
                 <span className="text-xs text-[#71717A] font-mono">
                   Standard ₹190 · VIP Recliner ₹250
@@ -163,7 +163,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
                   onClick={() => setHeroMediaMode('ticket')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
                     heroMediaMode === 'ticket'
-                      ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                      ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
                       : 'text-[#888888] hover:text-[#F5F5F5]'
                   }`}
                 >
@@ -176,7 +176,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
                   onClick={() => setHeroMediaMode('poster')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
                     heroMediaMode === 'poster'
-                      ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                      ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
                       : 'text-[#888888] hover:text-[#F5F5F5]'
                   }`}
                 >
@@ -206,7 +206,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
                       <span className="font-bold tracking-tight">CINESCAPE · Audi 3</span>
                       <span className="font-mono text-[#A1A1AA]">2h 35m</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#55E6A5]">
+                    <div className="flex items-center gap-1.5 text-[11px] text-[#E5A93C]">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       <span>First-Person 3D Sightline Guarantee</span>
                     </div>
@@ -221,7 +221,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
         <section className="space-y-4">
           <div className="border-b border-[#1C1C1C] pb-3 flex items-center justify-between">
             <div>
-              <span className="text-[10px] uppercase tracking-widest font-mono text-[#55E6A5] block">
+              <span className="text-[10px] uppercase tracking-widest font-mono text-[#E5A93C] block">
                 CINESCAPE Sightline Engine
               </span>
               <h2 className="text-lg font-bold text-white tracking-tight">
@@ -271,7 +271,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
                 Now Showing at CINESCAPE
               </h2>
             </div>
-            <span className="text-xs text-[#55E6A5] font-mono">
+            <span className="text-xs text-[#E5A93C] font-mono">
               {INDIAN_MOVIES.length} Titles Screening Live
             </span>
           </div>
@@ -281,7 +281,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
               <div
                 key={movie.id}
                 onClick={() => onSelectMovieAndBook(movie)}
-                className="bg-[#0A0A0A] border border-[#1C1C1C] hover:border-[#55E6A5]/50 rounded-2xl p-4 transition-all duration-300 cursor-pointer flex flex-col justify-between group"
+                className="bg-[#0A0A0A] border border-[#1C1C1C] hover:border-[#E5A93C]/50 rounded-2xl p-4 transition-all duration-300 cursor-pointer flex flex-col justify-between group"
               >
                 <div className="flex gap-4">
                   <div className="w-20 h-28 rounded-xl overflow-hidden bg-black shrink-0 border border-[#222222]">
@@ -295,7 +295,7 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
                     <span className="text-[10px] font-mono uppercase text-[#A1A1AA] tracking-wider block">
                       {movie.language} · {movie.genre}
                     </span>
-                    <h3 className="text-base font-bold text-white group-hover:text-[#55E6A5] transition truncate">
+                    <h3 className="text-base font-bold text-white group-hover:text-[#E5A93C] transition truncate">
                       {movie.title}
                     </h3>
                     <p className="text-xs text-[#71717A] line-clamp-2 leading-relaxed">

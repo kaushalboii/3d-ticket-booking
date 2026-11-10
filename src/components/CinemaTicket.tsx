@@ -9,12 +9,12 @@ import { Compass, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 
 export const CINEMA_PALETTES = [
   {
-    name: "Obsidian Mint",
-    paper: "#0a0b0e",
-    ink: "#55E6A5",
-    accent: "#55E6A5",
-    glareColor: "#55E6A5",
-    border: "#1e2923",
+    name: "Champagne Amber",
+    paper: "#0a0a0c",
+    ink: "#E5A93C",
+    accent: "#E5A93C",
+    glareColor: "#F5C369",
+    border: "#2e2413",
   },
   {
     name: "IMAX Cobalt",
@@ -265,7 +265,7 @@ export const CinemaTicket: React.FC<CinemaTicketProps> = ({
       {onBookNow && (
         <button
           onClick={onBookNow}
-          className="mt-1 px-5 py-2.5 rounded-full bg-[#55E6A5] text-[#050505] font-extrabold text-xs tracking-tight hover:brightness-105 transition flex items-center gap-2 shadow-lg shadow-[#55E6A5]/25 active:scale-95 cursor-pointer"
+          className="mt-1 px-5 py-2.5 rounded-full bg-white text-[#070709] font-bold text-xs tracking-tight hover:bg-neutral-200 transition flex items-center gap-2 shadow-lg shadow-white/10 active:scale-95 cursor-pointer"
         >
           <Compass className="w-3.5 h-3.5" />
           <span>Book Seats with this Pass</span>

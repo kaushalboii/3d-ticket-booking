@@ -34,7 +34,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
             onClick={() => setActiveTab('ticket3d')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
               activeTab === 'ticket3d'
-                ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
                 : 'text-[#888888] hover:text-[#F5F5F5]'
             }`}
           >
@@ -47,7 +47,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
             onClick={() => setActiveTab('printer')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
               activeTab === 'printer'
-                ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
                 : 'text-[#888888] hover:text-[#F5F5F5]'
             }`}
           >
@@ -60,7 +60,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
             onClick={() => setActiveTab('digital')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
               activeTab === 'digital'
-                ? 'bg-[#55E6A5] text-[#050505] shadow-sm'
+                ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
                 : 'text-[#888888] hover:text-[#F5F5F5]'
             }`}
           >
@@ -91,7 +91,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         <div className="w-full max-w-xs bg-[#111111] border border-[#222222] rounded-3xl overflow-hidden shadow-2xl my-auto">
           {/* Success Banner */}
           <div className="p-4 bg-[#090909] border-b border-[#1A1A1A] flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#55E6A5]/15 border border-[#55E6A5]/30 flex items-center justify-center text-[#55E6A5]">
+            <div className="w-8 h-8 rounded-full bg-[#E5A93C]/15 border border-[#E5A93C]/30 flex items-center justify-center text-[#E5A93C]">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
@@ -107,7 +107,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
           {/* Ticket Details */}
           <div className="p-5 space-y-4">
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#55E6A5] tracking-wider block">
+              <span className="text-[10px] uppercase font-bold text-[#E5A93C] tracking-wider block">
                 {booking.theatreName}
               </span>
               <h3 className="text-base font-bold text-[#F5F5F5] mt-0.5">
@@ -131,7 +131,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
                     : `Row ${booking.seat.row}, Seat ${booking.seat.number}`}
                 </span>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#55E6A5]/20 text-[#55E6A5] border border-[#55E6A5]/30 font-bold uppercase text-[10px]">
+              <span className="px-2.5 py-1 rounded-full bg-[#E5A93C]/20 text-[#E5A93C] border border-[#E5A93C]/30 font-bold uppercase text-[10px]">
                 {booking.seat.tierLabel}
               </span>
             </div>
@@ -161,7 +161,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
       <div className="w-full max-w-xs mt-3">
         <button
           onClick={onDone}
-          className="w-full py-3 rounded-full bg-[#55E6A5] text-[#050505] font-bold text-xs tracking-tight shadow-lg shadow-[#55E6A5]/20 active:scale-95 transition cursor-pointer"
+          className="w-full py-3 rounded-full bg-white text-[#070709] font-bold text-xs tracking-tight shadow-lg shadow-white/10 active:scale-95 transition cursor-pointer"
         >
           Done & Return to Cinema
         </button>

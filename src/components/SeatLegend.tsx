@@ -23,7 +23,7 @@ export const SeatLegend: React.FC = () => {
 
       {/* Selected */}
       <div className="flex items-center gap-2">
-        <div className="w-3.5 h-2.5 rounded-[3px] bg-[#55E6A5]" />
+        <div className="w-3.5 h-2.5 rounded-[3px] bg-[#E5A93C] shadow-sm shadow-[#E5A93C]/40" />
         <span className="text-[#E0E0E0] font-medium">Selected</span>
       </div>
     </div>

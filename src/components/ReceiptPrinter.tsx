@@ -223,7 +223,7 @@ function StatusIndicator({
         {isComplete ? (
           <motion.span
             animate={{ opacity: 1, transform: "scale(1)" }}
-            className="col-start-1 row-start-1 grid place-items-center text-green-9"
+            className="col-start-1 row-start-1 grid place-items-center text-[#E5A93C]"
             exit={{
               opacity: animate ? 0 : 1,
               transform: move ? "scale(0.96)" : "scale(1)",

@@ -50,7 +50,7 @@ export const TactileButton = React.forwardRef<
       default:
         "bg-[#1c1c1f] hover:bg-[#25252a] text-[#ededed] border-[#323238] border-b-[#121214] shadow-sm active:bg-[#18181a]",
       primary:
-        "bg-[#55E6A5] hover:brightness-105 text-[#050505] font-semibold border-[#45c98e] border-b-[#2e8a60] shadow-[0_4px_12px_rgba(85,230,165,0.25)] active:bg-[#4dd496]",
+        "bg-[#E5A93C] hover:brightness-105 text-[#070709] font-semibold border-[#d99827] border-b-[#9e6912] shadow-[0_4px_12px_rgba(229,169,60,0.25)] active:bg-[#d4972c]",
       secondary:
         "bg-[#28282d] hover:bg-[#323238] text-white border-[#3f3f46] border-b-[#1f1f23]",
       subtle:
@@ -58,7 +58,7 @@ export const TactileButton = React.forwardRef<
     }[variant];
 
     const baseClass = cn(
-      "relative inline-flex items-center justify-center font-medium select-none transition-all duration-75 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#55E6A5]/50 disabled:opacity-50 disabled:pointer-events-none",
+      "relative inline-flex items-center justify-center font-medium select-none transition-all duration-75 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#E5A93C]/50 disabled:opacity-50 disabled:pointer-events-none",
       sizeClasses,
       depthClasses,
       variantClasses,

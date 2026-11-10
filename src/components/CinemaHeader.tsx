@@ -32,7 +32,7 @@ export const CinemaHeader: React.FC<CinemaHeaderProps> = ({
         {/* Left Circle Back Button to Movies Portal */}
         <button
           onClick={onBackClick}
-          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#F5F5F5] flex items-center justify-center hover:bg-[#1A1A1A] hover:border-[#55E6A5] transition active:scale-95 cursor-pointer shadow-md"
+          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#F5F5F5] flex items-center justify-center hover:bg-[#1A1A1A] hover:border-[#E5A93C] transition active:scale-95 cursor-pointer shadow-md"
           title="Back to Movies"
           aria-label="Back to Movies"
         >
@@ -52,7 +52,7 @@ export const CinemaHeader: React.FC<CinemaHeaderProps> = ({
         {/* Right Settings / Screens Button matching Video Frame 00:00 */}
         <button
           onClick={onOpenSettings}
-          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#CCCCCC] hover:text-[#55E6A5] hover:border-[#55E6A5] flex items-center justify-center hover:bg-[#1A1A1A] transition active:scale-95 cursor-pointer shadow-md"
+          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#CCCCCC] hover:text-[#E5A93C] hover:border-[#E5A93C] flex items-center justify-center hover:bg-[#1A1A1A] transition active:scale-95 cursor-pointer shadow-md"
           title="Auditorium & Screen Settings"
         >
           <SlidersHorizontal className="w-4 h-4" />

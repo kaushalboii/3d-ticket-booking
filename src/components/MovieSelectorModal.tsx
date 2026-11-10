@@ -20,7 +20,7 @@ export const MovieSelectorModal: React.FC<MovieSelectorModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-[#1A1A1A] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[#181818] border border-[#262626] flex items-center justify-center text-[#55E6A5]">
+            <div className="w-7 h-7 rounded-full bg-[#181818] border border-[#262626] flex items-center justify-center text-[#E5A93C]">
               <Film className="w-3.5 h-3.5" />
             </div>
             <div>
@@ -53,7 +53,7 @@ export const MovieSelectorModal: React.FC<MovieSelectorModalProps> = ({
                 }}
                 className={`p-3 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${
                   isSelected
-                    ? 'bg-[#181818] border-[#55E6A5]/60 shadow-md shadow-[#55E6A5]/10'
+                    ? 'bg-[#181818] border-[#E5A93C]/60 shadow-md shadow-[#E5A93C]/10'
                     : 'bg-[#0A0A0A] border-[#1C1C1C] hover:border-[#333333] hover:bg-[#141414]'
                 }`}
               >
@@ -66,7 +66,7 @@ export const MovieSelectorModal: React.FC<MovieSelectorModalProps> = ({
                     />
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-[#55E6A5] tracking-wider block">
+                    <span className="text-[10px] uppercase font-bold text-[#E5A93C] tracking-wider block">
                       {movie.language} · 4K Laser
                     </span>
                     <h4 className="text-sm font-bold text-[#F5F5F5] truncate">
@@ -84,7 +84,7 @@ export const MovieSelectorModal: React.FC<MovieSelectorModalProps> = ({
                 </div>
 
                 {isSelected ? (
-                  <div className="w-6 h-6 rounded-full bg-[#55E6A5] text-[#050505] flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[#E5A93C] text-[#070709] flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 ) : (

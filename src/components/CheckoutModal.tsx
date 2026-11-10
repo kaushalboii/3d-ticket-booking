@@ -54,7 +54,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-[#1C1C1C] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[#1A1A1A] border border-[#262626] flex items-center justify-center text-[#55E6A5]">
+            <div className="w-7 h-7 rounded-full bg-[#1A1A1A] border border-[#262626] flex items-center justify-center text-[#E5A93C]">
               <Ticket className="w-3.5 h-3.5" />
             </div>
             <div>
@@ -101,7 +101,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div className="pt-2 border-t border-[#1C1C1C] flex justify-between items-center">
               <span className="text-xs font-semibold text-[#888888]">Total Amount</span>
-              <span className="text-[#55E6A5] font-bold text-base font-mono">
+              <span className="text-[#E5A93C] font-bold text-base font-mono">
                 ₹{total}
               </span>
             </div>
@@ -118,7 +118,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 onClick={() => setPaymentMethod('upi')}
                 className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
                   paymentMethod === 'upi'
-                    ? 'bg-[#181818] border-[#55E6A5] text-[#55E6A5]'
+                    ? 'bg-[#18181a] border-[#E5A93C] text-[#E5A93C]'
                     : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
                 }`}
               >
@@ -131,7 +131,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 onClick={() => setPaymentMethod('card')}
                 className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
                   paymentMethod === 'card'
-                    ? 'bg-[#181818] border-[#55E6A5] text-[#55E6A5]'
+                    ? 'bg-[#18181a] border-[#E5A93C] text-[#E5A93C]'
                     : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
                 }`}
               >
@@ -147,30 +147,30 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   placeholder="Enter UPI ID (e.g. mobile@upi)"
-                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#55E6A5] font-mono"
+                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#E5A93C] font-mono"
                 />
               </div>
             )}
           </div>
 
-          {/* Pay Button */}
+          {/* Pay Button: Clean High-Contrast Action */}
           <button
             onClick={handlePay}
             disabled={isProcessing}
-            className="w-full py-3 rounded-full bg-[#55E6A5] hover:brightness-105 text-[#050505] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#55E6A5]/25 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 rounded-full bg-white hover:bg-[#F2F2F5] text-[#060608] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-white/10 cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <span>Securing Reservation in Audi 3...</span>
             ) : (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Pay ₹{total} & Get Passes</span>
+                <span>Pay ₹{total} & Issue Passes</span>
               </>
             )}
           </button>
 
           <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#666666]">
-            <ShieldCheck className="w-3 h-3 text-[#55E6A5]" />
+            <ShieldCheck className="w-3 h-3 text-[#E5A93C]" />
             <span>Instant booking confirmation with scannable QR ticket</span>
           </div>
         </div>
