@@ -14,6 +14,7 @@ import {
 import { TactileButton } from "@/components/TactileButton";
 import { Booking } from "@/types";
 import { INDIAN_CINEMA_INFO } from "@/data/indianCinemaData";
+import { playPrinterStepSound, playSuccessChime } from "@/helpers/audio-helper";
 
 export interface PaymentReceiptProps {
   booking?: Booking;
@@ -90,6 +91,19 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
   const [stage, setStage] = useState<ReceiptPrinterStage>(defaultStage);
   const [feedMotion, setFeedMotion] = useState<ReceiptFeedMotion>("stepped");
   const [printCount, setPrintCount] = useState(1);
+
+  // Audio feedback for mechanical stepper motor and completion chime
+  useEffect(() => {
+    if (stage === "printing") {
+      // Pulse stepper motor sound during paper feed
+      const soundInterval = setInterval(() => {
+        playPrinterStepSound();
+      }, 110);
+      return () => clearInterval(soundInterval);
+    } else if (stage === "complete") {
+      playSuccessChime();
+    }
+  }, [stage]);
 
   // Auto-advance stages: processing (700ms) -> printing (2000ms) -> complete
   useEffect(() => {

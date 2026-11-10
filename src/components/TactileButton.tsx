@@ -65,13 +65,18 @@ export const TactileButton = React.forwardRef<
       className,
     );
 
+    const handleClick = (e: React.MouseEvent<any>) => {
+      playTactileClick();
+      onClick?.(e);
+    };
+
     if (href) {
       return (
         <a
           ref={ref as React.Ref<HTMLAnchorElement>}
           href={href}
           className={baseClass}
-          onClick={onClick as any}
+          onClick={handleClick}
           {...(props as any)}
         >
           {children}
@@ -85,7 +90,7 @@ export const TactileButton = React.forwardRef<
         type={type}
         disabled={disabled}
         className={baseClass}
-        onClick={onClick}
+        onClick={handleClick}
         {...props}
       >
         {children}
