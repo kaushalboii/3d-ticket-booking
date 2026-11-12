@@ -18,11 +18,11 @@ export const CINESCAPE_INFO = {
 export const INDIAN_CINEMA_INFO = CINESCAPE_INFO;
 
 export const CINESCAPE_LOCATIONS = [
-  { id: 'london', city: 'London', flag: '🇬🇧', venue: 'West End Leicester Sq' },
-  { id: 'tokyo', city: 'Tokyo', flag: '🇯🇵', venue: 'Shinjuku IMAX Tower' },
-  { id: 'nyc', city: 'New York', flag: '🇺🇸', venue: 'Lincoln Square 70mm' },
-  { id: 'mumbai', city: 'Mumbai', flag: '🇮🇳', venue: 'Bandra Grand Pavilion' },
-  { id: 'singapore', city: 'Singapore', flag: '🇸🇬', venue: 'Marina Bay Laser' },
+  { id: 'london', city: 'London', code: 'LDN', venue: 'West End Leicester Sq' },
+  { id: 'tokyo', city: 'Tokyo', code: 'TYO', venue: 'Shinjuku IMAX Tower' },
+  { id: 'nyc', city: 'New York', code: 'NYC', venue: 'Lincoln Square 70mm' },
+  { id: 'mumbai', city: 'Mumbai', code: 'BOM', venue: 'Bandra Grand Pavilion' },
+  { id: 'singapore', city: 'Singapore', code: 'SIN', venue: 'Marina Bay Laser' },
 ];
 
 export const INDIAN_SHOWTIMES: Showtime[] = [
@@ -101,8 +101,8 @@ export const INDIAN_MOVIES: Movie[] = [
     genre: 'Action · Crime Thriller',
     rating: '8.8 / 10',
     duration: '2h 35m',
-    poster: '/dune_clean_screen.jpg',
-    backdrop: '/dune_clean_screen.jpg',
+    poster: './dune_clean_screen.jpg',
+    backdrop: './dune_clean_screen.jpg',
     director: 'Lokesh Kanagaraj',
     theatre: 'CINESCAPE Global Flagship',
     timing: '19:45',
@@ -115,8 +115,8 @@ export const INDIAN_MOVIES: Movie[] = [
     genre: 'Sci-Fi · Epic Adventure',
     rating: '8.9 / 10',
     duration: '2h 46m',
-    poster: '/dune_clean_screen.jpg',
-    backdrop: '/dune_clean_screen.jpg',
+    poster: './dune_clean_screen.jpg',
+    backdrop: './dune_clean_screen.jpg',
     director: 'Denis Villeneuve',
     theatre: 'CINESCAPE Global Flagship',
     timing: '22:15',
@@ -160,7 +160,7 @@ export function calculateSeatMetrics(
   seatsInRow: number = 14
 ): SeatMetrics {
   const rowIndex = rowChar.charCodeAt(0) - 65; // A=0, B=1, ... I=8
-  const centerSeat = 7.5; // (14 + 1) / 2
+  const centerSeat = (seatsInRow + 1) / 2;
   const seatOffset = seatNum - centerSeat;
 
   const minDistance = 5.2; // Row A
@@ -173,9 +173,9 @@ export function calculateSeatMetrics(
 
   let offsetDirection = 'dead centre';
   if (seatOffset < -0.3) {
-    offsetDirection = `${offsetMeters} m left of centre`;
+    offsetDirection = 'left of centre';
   } else if (seatOffset > 0.3) {
-    offsetDirection = `${offsetMeters} m right of centre`;
+    offsetDirection = 'right of centre';
   }
 
   let category: 'UP CLOSE' | 'SWEET SPOT' | 'FULL PICTURE' = 'FULL PICTURE';

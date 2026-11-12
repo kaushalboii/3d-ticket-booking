@@ -22,65 +22,69 @@ export const CinemaHeader: React.FC<CinemaHeaderProps> = ({
   onSelectShowtime,
   onBackClick,
   onOpenSettings,
-  onOpenLogin,
-  userName,
 }) => {
   return (
-    <div className="w-full flex flex-col items-center pt-3 pb-3 px-5 select-none bg-[#050505] border-b border-[#141414]/60">
-      {/* Top Bar: Left Back Button, Center Cinema & Hall, Right Profile/Settings */}
-      <div className="w-full flex items-center justify-between mb-3.5">
-        {/* Left Circle Back Button to Movies Portal */}
-        <button
-          onClick={onBackClick}
-          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#F5F5F5] flex items-center justify-center hover:bg-[#1A1A1A] hover:border-[#E5A93C] transition active:scale-95 cursor-pointer shadow-md"
-          title="Back to Movies"
-          aria-label="Back to Movies"
-        >
-          <ChevronLeft className="w-4 h-4 text-[#CCCCCC]" />
-        </button>
+    <header className="w-full flex flex-col items-center pt-4 pb-3.5 px-5 select-none bg-[#0c0b0a] border-b border-[#efe9de]/[0.08]">
+      {/* Symmetrical Top Bar */}
+      <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center gap-3 mb-4">
+        <div className="justify-self-start">
+          <button
+            onClick={onBackClick}
+            className="w-9 h-9 rounded-full bg-[#141311] border border-[#efe9de]/[0.08] text-[#efe9de] flex items-center justify-center hover:bg-[#1e1c19] hover:border-[#efe9de]/20 transition-colors duration-150 active:scale-[0.97] cursor-pointer"
+            title="Back to Movies"
+            aria-label="Back to Movies"
+          >
+            <ChevronLeft className="w-4 h-4 text-[#cfc8bc]" strokeWidth={1.75} />
+          </button>
+        </div>
 
-        {/* Center Title and Subtitle matching Video Frame 00:00 */}
-        <div className="flex flex-col items-center text-center">
-          <h1 className="text-[#F5F5F5] font-bold text-base tracking-tight leading-tight">
+        <div className="justify-self-center flex flex-col items-center text-center min-w-0">
+          <h1 className="text-[#efe9de] font-semibold text-sm sm:text-base tracking-tight leading-tight">
             {cinemaName}
           </h1>
-          <p className="text-[#808080] text-xs font-normal mt-0.5 tracking-tight">
+          <p className="text-[#787268] text-xs font-normal mt-0.5 truncate max-w-[260px] sm:max-w-md">
             {hallAndDate}
           </p>
         </div>
 
-        {/* Right Settings / Screens Button matching Video Frame 00:00 */}
-        <button
-          onClick={onOpenSettings}
-          className="w-9 h-9 rounded-full bg-[#111111] border border-[#222222] text-[#CCCCCC] hover:text-[#E5A93C] hover:border-[#E5A93C] flex items-center justify-center hover:bg-[#1A1A1A] transition active:scale-95 cursor-pointer shadow-md"
-          title="Auditorium & Screen Settings"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-        </button>
+        <div className="justify-self-end">
+          <button
+            onClick={onOpenSettings}
+            className="w-9 h-9 rounded-full bg-[#141311] border border-[#efe9de]/[0.08] text-[#cfc8bc] hover:text-[#E5A93C] hover:border-[#efe9de]/20 flex items-center justify-center hover:bg-[#1e1c19] transition-colors duration-150 active:scale-[0.97] cursor-pointer"
+            title="Auditorium & Screen Settings"
+            aria-label="Auditorium & Screen Settings"
+          >
+            <SlidersHorizontal className="w-4 h-4" strokeWidth={1.75} />
+          </button>
+        </div>
       </div>
 
-      {/* Showtime Pill Selector matching Video Frame 00:00: Active is Solid White Capsule */}
-      <div className="flex items-center gap-2 justify-center max-w-full">
+      {/* Showtime Segmented Strip (Consistent height, zero scale jump) */}
+      <div className="flex items-center gap-2 justify-center max-w-full flex-wrap">
         {showtimes.map((st) => {
           const isSelected = st.id === selectedShowtimeId;
           return (
             <button
               key={st.id}
               onClick={() => onSelectShowtime(st.id)}
-              className={`px-4 py-1.5 rounded-full text-xs transition duration-200 flex items-center gap-1.5 cursor-pointer ${
+              className={`h-8 px-3.5 rounded-lg text-xs transition-colors duration-150 flex items-center gap-2 cursor-pointer tabular-nums active:scale-[0.98] ${
                 isSelected
-                  ? 'bg-white text-[#0A0A0A] font-bold shadow-lg shadow-white/10 scale-105'
-                  : 'bg-[#111111] border border-[#222222] text-[#808080] hover:text-[#E0E0E0] hover:border-[#333333]'
+                  ? 'bg-[#efe9de] text-[#12110f] font-semibold'
+                  : 'bg-[#141311] border border-[#efe9de]/[0.08] text-[#aaa398] hover:text-[#efe9de] hover:bg-[#1e1c19]'
               }`}
             >
               <span>{st.time}</span>
-              <span className={`text-[10px] uppercase font-bold tracking-tight ${isSelected ? 'text-[#0A0A0A]/90' : 'text-[#666666]'}`}>
+              <span
+                className={`text-[10px] font-mono ${
+                  isSelected ? 'text-[#12110f]/75 font-semibold' : 'text-[#787268]'
+                }`}
+              >
                 {st.format}
               </span>
             </button>
           );
         })}
       </div>
-    </div>
+    </header>
   );
 };

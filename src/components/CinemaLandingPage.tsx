@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Movie, UserProfile } from '../types';
-import { INDIAN_MOVIES, INDIAN_SHOWTIMES, INDIAN_DATES, CINESCAPE_LOCATIONS } from '../data/indianCinemaData';
-import { Film, User, ChevronRight, ArrowRight, Sparkles, Star, ShieldCheck, Globe, Compass, Play, Ticket as TicketIcon, Image as ImageIcon } from 'lucide-react';
-import { ScreenArc } from './ScreenArc';
+import { INDIAN_MOVIES, INDIAN_SHOWTIMES, CINESCAPE_LOCATIONS } from '../data/indianCinemaData';
+import { User, ChevronRight, ArrowRight, ShieldCheck, Ticket as TicketIcon, Image as ImageIcon } from 'lucide-react';
 import { CinemaTicket } from './CinemaTicket';
 
 interface CinemaLandingPageProps {
@@ -17,198 +16,211 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
   currentUser,
 }) => {
   const [selectedCityId, setSelectedCityId] = useState('mumbai');
+  const [selectedHeroShowtimeId, setSelectedHeroShowtimeId] = useState('st-2');
   const [heroMediaMode, setHeroMediaMode] = useState<'ticket' | 'poster'>('ticket');
-  const featured = INDIAN_MOVIES[0]; // Scene - Tamil
-  const currentCity = CINESCAPE_LOCATIONS.find((c) => c.id === selectedCityId) || CINESCAPE_LOCATIONS[0];
+
+  const featured = INDIAN_MOVIES[0];
+  const currentCity =
+    CINESCAPE_LOCATIONS.find((c) => c.id === selectedCityId) || CINESCAPE_LOCATIONS[0];
+  const activeShowtime =
+    INDIAN_SHOWTIMES.find((st) => st.id === selectedHeroShowtimeId) || INDIAN_SHOWTIMES[1];
 
   return (
-    <div className="w-full h-full bg-[#000000] text-[#FFFFFF] flex flex-col overflow-y-auto select-none font-sans antialiased">
-      {/* Global Brand Top Header */}
-      <header className="sticky top-0 z-40 bg-[#000000]/95 backdrop-blur-md border-b border-[#181818] px-6 py-4 flex items-center justify-between">
-        {/* Brand Logo & Global Location */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center font-black text-xs tracking-tighter shadow-md">
-            CS
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black tracking-widest text-white">
+    <div className="w-full h-full bg-[#0c0b0a] text-[#efe9de] flex flex-col overflow-y-auto select-none antialiased">
+      {/* Sticky Header Aligned With Page Container */}
+      <header className="sticky top-0 z-40 bg-[#0c0b0a]/90 backdrop-blur-md border-b border-[#efe9de]/[0.08]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Flat Architectural Brand Mark + Venue */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-[#141311] border border-[#efe9de]/[0.1] flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M2.5 5.2C5.8 3.6 10.2 3.6 13.5 5.2"
+                  stroke="#E5A93C"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <rect
+                  x="3"
+                  y="7.5"
+                  width="10"
+                  height="5"
+                  rx="1.2"
+                  stroke="#efe9de"
+                  strokeOpacity="0.65"
+                  strokeWidth="1.25"
+                />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <span className="text-sm font-semibold tracking-[0.14em] text-[#efe9de] block leading-none">
                 CINESCAPE
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A93C]" />
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#121212] border border-[#262626] text-[#A0A0A0] font-mono tracking-tight">
-                GLOBAL FLAGSHIP
-              </span>
+              <p className="text-xs text-[#787268] truncate mt-1">
+                {currentCity.venue} · Audi 3
+              </p>
             </div>
-            <p className="text-[10px] text-[#71717A] tracking-wide mt-0.5">
-              {currentCity.venue} · Audi 3 (IMAX 4K Laser & Dolby Atmos)
-            </p>
           </div>
-        </div>
 
-        {/* Global Cities Selector */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-[#0A0A0A] p-1 rounded-full border border-[#1E1E1E]">
-          {CINESCAPE_LOCATIONS.map((loc) => {
-            const isCurrent = loc.id === selectedCityId;
-            return (
-              <button
-                key={loc.id}
-                onClick={() => setSelectedCityId(loc.id)}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer flex items-center gap-1.5 ${
-                  isCurrent
-                    ? 'bg-white text-black font-bold shadow-sm'
-                    : 'text-[#777777] hover:text-[#CCCCCC]'
-                }`}
-              >
-                <span>{loc.flag}</span>
-                <span>{loc.city}</span>
-              </button>
-            );
-          })}
-        </div>
+          {/* Segmented Location Strip (Zero Emoji Slop) */}
+          <nav
+            aria-label="Flagship cinema cities"
+            className="hidden lg:flex items-center gap-1 bg-[#141311] p-1 rounded-lg border border-[#efe9de]/[0.08]"
+          >
+            {CINESCAPE_LOCATIONS.map((loc) => {
+              const isCurrent = loc.id === selectedCityId;
+              return (
+                <button
+                  key={loc.id}
+                  onClick={() => setSelectedCityId(loc.id)}
+                  className={`h-7 px-2.5 rounded-md text-xs transition-colors duration-150 cursor-pointer flex items-center gap-1.5 ${
+                    isCurrent
+                      ? 'bg-[#262421] text-[#efe9de] font-medium'
+                      : 'text-[#787268] hover:text-[#aaa398]'
+                  }`}
+                >
+                  <span className="font-mono text-[10px] text-[#E5A93C]">{loc.code}</span>
+                  <span>{loc.city}</span>
+                </button>
+              );
+            })}
+          </nav>
 
-        {/* User Account / Membership */}
-        <button
-          onClick={onOpenLogin}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#111111] hover:bg-[#1A1A1A] border border-[#262626] text-xs font-semibold text-[#E4E4E7] transition cursor-pointer shadow-sm"
-        >
-          <User className="w-3.5 h-3.5 text-[#E5A93C]" />
-          <span>{currentUser?.isLoggedIn ? currentUser.name : 'Sign In'}</span>
-        </button>
+          {/* Quiet Account Action */}
+          <button
+            onClick={onOpenLogin}
+            className="h-8 px-3 rounded-lg bg-[#141311] hover:bg-[#1e1c19] border border-[#efe9de]/[0.08] text-xs font-medium text-[#efe9de] transition-colors duration-150 cursor-pointer flex items-center gap-2 shrink-0"
+          >
+            <User className="w-3.5 h-3.5 text-[#E5A93C]" strokeWidth={1.75} />
+            <span>{currentUser?.isLoggedIn ? currentUser.name : 'Sign in'}</span>
+          </button>
+        </div>
       </header>
 
-      {/* Main Content Showcase */}
-      <div className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-12">
-        {/* Hero Cinematic Feature with Curved Cinema Screen Arc */}
-        <section className="relative rounded-3xl border border-[#1E1E1E] bg-gradient-to-b from-[#0A0A0A] via-[#060606] to-[#020202] p-6 sm:p-10 overflow-hidden shadow-2xl">
-          {/* Subtle curved screen glow line overhead */}
-          <div className="w-full flex justify-center mb-6">
-            <ScreenArc />
-          </div>
+      {/* Main Content Container */}
+      <div className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-12">
+        {/* Hero Feature Split */}
+        <section className="rounded-[20px] border border-[#efe9de]/[0.08] bg-[#141311] p-6 sm:p-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left Column: Title, Format Specs, Showtime Selection, Single Primary CTA */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-3">
+                <p className="text-xs font-mono text-[#aaa398] tabular-nums">
+                  {featured.genre} · IMAX 4K Laser · {featured.duration} · {featured.rating}
+                </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Film Editorial Details */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#A1A1AA]">
-                <span className="px-2.5 py-0.5 rounded-full bg-white text-black font-bold">
-                  Now Screening Globally
-                </span>
-                <span className="border border-[#27272A] px-2 py-0.5 rounded-full">
-                  IMAX 4K Laser
-                </span>
-                <span className="border border-[#27272A] px-2 py-0.5 rounded-full">
-                  Dolby Atmos 64-CH
-                </span>
-                <span className="flex items-center gap-1 text-amber-400 font-bold border border-[#27272A] px-2 py-0.5 rounded-full">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span>8.8 / 10</span>
-                </span>
+                <h1 className="text-4xl sm:text-5xl font-semibold text-[#efe9de] tracking-[-0.025em] leading-[1.06]">
+                  {featured.title}
+                </h1>
+
+                <p className="text-sm sm:text-base text-[#aaa398] leading-relaxed max-w-lg">
+                  Inspect exact seat distance, screen curvature, and eye-level sightlines in 3D before reserving your seat in {currentCity.venue}.
+                </p>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                {featured.title}
-              </h1>
-
-              <p className="text-sm text-[#A1A1AA] leading-relaxed max-w-lg">
-                Director Lokesh Kanagaraj's high-octane cinematic thrill ride projected onto CINESCAPE's largest curved giant screen with uncompressed audio fidelity.
-              </p>
-
-              {/* Showtimes Capsules matching Reference Video Frame 00:00 */}
-              <div className="pt-2">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#71717A] block mb-2">
-                  Select Showtime in Audi 3:
+              {/* Showtime Selector */}
+              <div className="space-y-2.5">
+                <span className="text-xs text-[#787268] block">
+                  Showtimes today · Audi 3
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
-                  {INDIAN_SHOWTIMES.map((st) => (
-                    <button
-                      key={st.id}
-                      onClick={() => onSelectMovieAndBook(featured, st.id)}
-                      className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-2 ${
-                        st.selected
-                          ? 'bg-white text-black font-bold shadow-md shadow-white/20 hover:bg-[#EEEEEE]'
-                          : 'bg-[#121212] border border-[#27272A] text-[#D4D4D8] hover:border-white hover:text-white'
-                      }`}
-                    >
-                      <span>{st.time}</span>
-                      <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${st.selected ? 'bg-black/10 text-black' : 'bg-[#222222] text-[#888888]'}`}>
-                        {st.format}
-                      </span>
-                    </button>
-                  ))}
+                  {INDIAN_SHOWTIMES.map((st) => {
+                    const isSelected = st.id === selectedHeroShowtimeId;
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => setSelectedHeroShowtimeId(st.id)}
+                        className={`h-9 px-3.5 rounded-lg text-xs transition-colors duration-150 cursor-pointer flex items-center gap-2 tabular-nums ${
+                          isSelected
+                            ? 'bg-[#262421] border border-[#E5A93C]/60 text-[#efe9de] font-medium'
+                            : 'bg-[#0c0b0a] border border-[#efe9de]/[0.08] text-[#aaa398] hover:text-[#efe9de] hover:border-[#efe9de]/20'
+                        }`}
+                      >
+                        <span className="font-mono">{st.time}</span>
+                        <span
+                          className={`text-[10px] font-mono ${
+                            isSelected ? 'text-[#E5A93C]' : 'text-[#787268]'
+                          }`}
+                        >
+                          {st.format}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Booking CTA Button */}
-              <div className="pt-3 flex flex-wrap items-center gap-4">
+              {/* Primary CTA + Pricing Spec */}
+              <div className="pt-1 flex flex-wrap items-center gap-4">
                 <button
-                  onClick={() => onSelectMovieAndBook(featured, 'st-2')}
-                  className="px-7 py-3.5 rounded-full bg-white text-[#070709] font-bold text-xs tracking-tight hover:bg-neutral-200 transition flex items-center gap-2 shadow-xl shadow-white/10 active:scale-95 cursor-pointer"
+                  onClick={() => onSelectMovieAndBook(featured, selectedHeroShowtimeId)}
+                  className="h-11 px-6 rounded-xl bg-[#efe9de] text-[#12110f] font-semibold text-xs tracking-tight hover:bg-white transition-colors duration-150 flex items-center gap-2 active:scale-[0.98] cursor-pointer tabular-nums"
                 >
-                  <Compass className="w-4 h-4 text-[#070709]" />
-                  <span>Select Seats & 3D Preview (₹190)</span>
-                  <ArrowRight className="w-4 h-4 text-[#070709]" />
+                  <span>Select seats & 3D preview · ₹190</span>
+                  <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
                 </button>
-                <span className="text-xs text-[#71717A] font-mono">
-                  Standard ₹190 · VIP Recliner ₹250
+                <span className="text-xs text-[#787268] font-mono tabular-nums">
+                  Standard ₹190 · Recliner ₹250
                 </span>
               </div>
             </div>
 
-            {/* Right Column: Interactive 3D Tactile Ticket or High-contrast Poster */}
+            {/* Right Column: Live Interactive 3D Physical Ticket */}
             <div className="lg:col-span-5 flex flex-col items-center justify-center">
-              {/* Media Mode Toggle */}
-              <div className="flex items-center gap-1 bg-[#111114] border border-[#222327] p-1 rounded-full mb-3 self-center shadow-inner">
+              <div className="flex items-center gap-1 bg-[#0c0b0a] border border-[#efe9de]/[0.08] p-1 rounded-lg mb-4">
                 <button
                   type="button"
                   onClick={() => setHeroMediaMode('ticket')}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
+                  className={`flex items-center gap-1.5 h-7 px-3 rounded-md text-xs font-medium transition-colors duration-150 cursor-pointer ${
                     heroMediaMode === 'ticket'
-                      ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
-                      : 'text-[#888888] hover:text-[#F5F5F5]'
+                      ? 'bg-[#262421] text-[#efe9de]'
+                      : 'text-[#787268] hover:text-[#aaa398]'
                   }`}
                 >
-                  <Sparkles className="w-3 h-3" />
-                  <span>3D Physical Ticket</span>
+                  <TicketIcon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  <span>3D Ticket</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setHeroMediaMode('poster')}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition cursor-pointer ${
+                  className={`flex items-center gap-1.5 h-7 px-3 rounded-md text-xs font-medium transition-colors duration-150 cursor-pointer ${
                     heroMediaMode === 'poster'
-                      ? 'bg-[#E5A93C] text-[#070709] shadow-sm'
-                      : 'text-[#888888] hover:text-[#F5F5F5]'
+                      ? 'bg-[#262421] text-[#efe9de]'
+                      : 'text-[#787268] hover:text-[#aaa398]'
                   }`}
                 >
-                  <ImageIcon className="w-3 h-3" />
-                  <span>Movie Poster</span>
+                  <ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  <span>Screen Still</span>
                 </button>
               </div>
 
               {heroMediaMode === 'ticket' ? (
-                <div className="w-full flex justify-center py-1">
+                <div className="w-full flex justify-center">
                   <CinemaTicket
                     movieTitle={featured.title}
-                    onBookNow={() => onSelectMovieAndBook(featured, 'st-2')}
+                    theatreName={currentCity.venue}
+                    hallName={`Audi 3 · ${activeShowtime.format}`}
+                    showtime={activeShowtime.time}
                   />
                 </div>
               ) : (
-                <div className="relative w-full max-w-[320px] aspect-[4/5] rounded-2xl overflow-hidden border border-[#222222] bg-[#0A0A0A] shadow-2xl group">
+                <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-2xl overflow-hidden border border-[#efe9de]/[0.08] bg-[#0c0b0a]">
                   <img
                     src={featured.backdrop}
                     alt={featured.title}
-                    className="w-full h-full object-cover filter contrast-125 brightness-75 group-hover:scale-105 transition duration-700"
+                    className="w-full h-full object-cover brightness-90"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c0b0a] via-transparent to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 space-y-1">
-                    <div className="flex items-center justify-between text-xs text-white">
-                      <span className="font-bold tracking-tight">CINESCAPE · Audi 3</span>
-                      <span className="font-mono text-[#A1A1AA]">2h 35m</span>
+                    <div className="flex items-center justify-between text-xs text-[#efe9de] tabular-nums">
+                      <span className="font-medium">Audi 3 · {activeShowtime.time}</span>
+                      <span className="font-mono text-[#aaa398]">{featured.duration}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#E5A93C]">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>First-Person 3D Sightline Guarantee</span>
+                    <div className="flex items-center gap-1.5 text-xs text-[#E5A93C]">
+                      <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      <span>Eye-level sightline calibrated</span>
                     </div>
                   </div>
                 </div>
@@ -217,62 +229,74 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
           </div>
         </section>
 
-        {/* 3D Sightline Feature Preview: Minimal Architecture */}
+        {/* Sightline Engine Metrics */}
         <section className="space-y-4">
-          <div className="border-b border-[#1C1C1C] pb-3 flex items-center justify-between">
+          <div className="border-b border-[#efe9de]/[0.08] pb-3 flex items-baseline justify-between gap-4">
             <div>
-              <span className="text-[10px] uppercase tracking-widest font-mono text-[#E5A93C] block">
-                CINESCAPE Sightline Engine
+              <span className="text-xs font-mono text-[#E5A93C] block">
+                Sightline engine
               </span>
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                Inspect Your Exact Eye-Level Sightline Before Booking
+              <h2 className="text-lg font-semibold text-[#efe9de] tracking-tight mt-0.5">
+                Inspect exact geometry before booking
               </h2>
             </div>
-            <span className="text-xs text-[#71717A] font-mono hidden sm:inline">
-              Audi 3 · Stadium Seating
+            <span className="text-xs text-[#787268] font-mono hidden sm:inline">
+              Audi 3 · 3-8-3 Stadium Rake
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] font-mono text-[#71717A] uppercase">01 / Laser Distance</span>
-              <div className="text-2xl font-bold font-mono text-white">9.8 m</div>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Calculated physical distance from your seat cushion to the curved screen center for optimal eye comfort.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[#141311] border border-[#efe9de]/[0.08] rounded-2xl p-5 flex flex-col justify-between gap-3">
+              <div>
+                <span className="text-xs font-mono text-[#787268] block">01 · Throw distance</span>
+                <div className="text-2xl font-medium font-mono text-[#efe9de] mt-2 tabular-nums">
+                  9.8 m
+                </div>
+              </div>
+              <p className="text-xs text-[#aaa398] leading-relaxed">
+                Physical distance measured from your chosen seat cushion to the curved screen center.
               </p>
             </div>
 
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] font-mono text-[#71717A] uppercase">02 / Field of View</span>
-              <div className="text-2xl font-bold font-mono text-white">60° FOV</div>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Cinematic immersion rating matching the SMPTE and IMAX recommended peripheral arc.
+            <div className="bg-[#141311] border border-[#efe9de]/[0.08] rounded-2xl p-5 flex flex-col justify-between gap-3">
+              <div>
+                <span className="text-xs font-mono text-[#787268] block">02 · Viewing angle</span>
+                <div className="text-2xl font-medium font-mono text-[#efe9de] mt-2 tabular-nums">
+                  60° FOV
+                </div>
+              </div>
+              <p className="text-xs text-[#aaa398] leading-relaxed">
+                Horizontal field-of-view matched to the SMPTE sweet spot for curved giant screens.
               </p>
             </div>
 
-            <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] font-mono text-[#71717A] uppercase">03 / Alignment</span>
-              <div className="text-2xl font-bold font-mono text-white">0.3 m Offset</div>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Precise off-axis metric ensuring symmetric stereo separation from all 64 surround channels.
+            <div className="bg-[#141311] border border-[#efe9de]/[0.08] rounded-2xl p-5 flex flex-col justify-between gap-3">
+              <div>
+                <span className="text-xs font-mono text-[#787268] block">03 · Acoustic offset</span>
+                <div className="text-2xl font-medium font-mono text-[#efe9de] mt-2 tabular-nums">
+                  0.3 m
+                </div>
+              </div>
+              <p className="text-xs text-[#aaa398] leading-relaxed">
+                Lateral centerline offset ensuring symmetric stereo balance across 64 channels.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Global Film Programme Grid */}
+        {/* Film Programme Grid */}
         <section className="space-y-4">
-          <div className="border-b border-[#1C1C1C] pb-3 flex items-center justify-between">
+          <div className="border-b border-[#efe9de]/[0.08] pb-3 flex items-baseline justify-between gap-4">
             <div>
-              <span className="text-[10px] uppercase tracking-widest font-mono text-[#71717A] block">
-                Global Programme
+              <span className="text-xs font-mono text-[#787268] block">
+                Now screening
               </span>
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                Now Showing at CINESCAPE
+              <h2 className="text-lg font-semibold text-[#efe9de] tracking-tight mt-0.5">
+                Current programme in {currentCity.city}
               </h2>
             </div>
-            <span className="text-xs text-[#E5A93C] font-mono">
-              {INDIAN_MOVIES.length} Titles Screening Live
+            <span className="text-xs text-[#aaa398] font-mono tabular-nums">
+              {INDIAN_MOVIES.length} titles
             </span>
           </div>
 
@@ -281,46 +305,46 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
               <div
                 key={movie.id}
                 onClick={() => onSelectMovieAndBook(movie)}
-                className="bg-[#0A0A0A] border border-[#1C1C1C] hover:border-[#E5A93C]/50 rounded-2xl p-4 transition-all duration-300 cursor-pointer flex flex-col justify-between group"
+                className="bg-[#141311] border border-[#efe9de]/[0.08] hover:border-[#efe9de]/20 rounded-2xl p-5 transition-colors duration-150 cursor-pointer flex flex-col justify-between group"
               >
                 <div className="flex gap-4">
-                  <div className="w-20 h-28 rounded-xl overflow-hidden bg-black shrink-0 border border-[#222222]">
+                  <div className="w-20 h-28 rounded-xl overflow-hidden bg-[#0c0b0a] shrink-0 border border-[#efe9de]/[0.08]">
                     <img
                       src={movie.backdrop}
                       alt={movie.title}
-                      className="w-full h-full object-cover filter contrast-125 brightness-80 group-hover:scale-105 transition duration-500"
+                      className="w-full h-full object-cover brightness-85"
                     />
                   </div>
                   <div className="space-y-1.5 min-w-0">
-                    <span className="text-[10px] font-mono uppercase text-[#A1A1AA] tracking-wider block">
+                    <span className="text-xs text-[#787268] block">
                       {movie.language} · {movie.genre}
                     </span>
-                    <h3 className="text-base font-bold text-white group-hover:text-[#E5A93C] transition truncate">
+                    <h3 className="text-base font-semibold text-[#efe9de] group-hover:text-[#E5A93C] transition-colors duration-150 truncate">
                       {movie.title}
                     </h3>
-                    <p className="text-xs text-[#71717A] line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[#aaa398] line-clamp-2 leading-relaxed">
                       {movie.synopsis}
                     </p>
-                    <div className="text-[11px] font-mono text-[#A1A1AA] pt-1">
-                      Standard ₹190 · VIP Recliner ₹250
+                    <div className="text-xs font-mono text-[#787268] pt-1 tabular-nums">
+                      Standard ₹190 · Recliner ₹250
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#181818] flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded bg-[#161616] border border-[#262626] text-white text-xs font-mono font-bold">
+                <div className="mt-4 pt-3.5 border-t border-[#efe9de]/[0.06] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 tabular-nums">
+                    <span className="px-2.5 py-1 rounded-md bg-[#0c0b0a] border border-[#efe9de]/[0.08] text-[#efe9de] text-xs font-mono font-medium">
                       {movie.timing}
                     </span>
-                    <span className="text-[10px] text-[#71717A] font-mono">
+                    <span className="text-xs text-[#787268] font-mono">
                       Audi 3
                     </span>
                   </div>
 
-                  <button className="px-3.5 py-1.5 rounded-full bg-white text-black text-xs font-bold hover:bg-[#E4E4E7] transition flex items-center gap-1 group-hover:translate-x-0.5">
-                    <span>Select Seats</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  <span className="h-8 px-3.5 rounded-lg bg-[#efe9de] text-[#12110f] text-xs font-semibold flex items-center gap-1 group-hover:bg-white transition-colors duration-150">
+                    <span>Select seats</span>
+                    <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  </span>
                 </div>
               </div>
             ))}
@@ -328,14 +352,16 @@ export const CinemaLandingPage: React.FC<CinemaLandingPageProps> = ({
         </section>
       </div>
 
-      {/* Global Minimal Footer */}
-      <footer className="mt-auto border-t border-[#141414] py-8 px-6 text-center text-xs text-[#71717A] space-y-1">
-        <p className="font-semibold text-[#A1A1AA]">
-          CINESCAPE Global Flagship Theatres · London · New York · Tokyo · Mumbai · Singapore
-        </p>
-        <p className="text-[11px]">
-          Auditorium 3 (IMAX 4K Laser Projection, 64-Channel Dolby Atmos, 3-Bank Seating Layout)
-        </p>
+      {/* Footer */}
+      <footer className="mt-auto border-t border-[#efe9de]/[0.08] py-8 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#787268]">
+          <p className="font-medium text-[#aaa398]">
+            CINESCAPE Global Flagship · London · Tokyo · New York · Mumbai · Singapore
+          </p>
+          <p className="font-mono">
+            Audi 3 · IMAX 4K Laser · Dolby Atmos
+          </p>
+        </div>
       </footer>
     </div>
   );

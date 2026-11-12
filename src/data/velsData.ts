@@ -49,7 +49,7 @@ export const MOVIES_LIST: Movie[] = [
     timing: '02:45 PM',
     director: 'Denis Villeneuve',
     poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
-    backdrop: '/dune_clean_screen.jpg',
+    backdrop: './dune_clean_screen.jpg',
   },
 ];
 

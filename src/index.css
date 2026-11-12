@@ -19,56 +19,58 @@
 :root {
   color-scheme: dark;
 
-  /* Default dark palette matching Radix Gray scale */
-  --color-grayscale-1: #0d0e11;
-  --color-grayscale-2: #141519;
-  --color-grayscale-3: #202228;
-  --color-grayscale-4: #282a32;
-  --color-grayscale-5: #32353f;
-  --color-grayscale-6: #3e424f;
-  --color-grayscale-7: #4e5363;
-  --color-grayscale-8: #73798c;
-  --color-grayscale-9: #8e95a9;
-  --color-grayscale-10: #acb3c6;
-  --color-grayscale-11: #cdd3e3;
-  --color-grayscale-12: #f3f5f8;
+  /* Warm obsidian neutral ramp paired with subtle projector brass accent */
+  --color-grayscale-1: #0c0b0a;
+  --color-grayscale-2: #141311;
+  --color-grayscale-3: #1e1c19;
+  --color-grayscale-4: #262421;
+  --color-grayscale-5: #33302b;
+  --color-grayscale-6: #444039;
+  --color-grayscale-7: #5a554c;
+  --color-grayscale-8: #787268;
+  --color-grayscale-9: #958e83;
+  --color-grayscale-10: #aaa398;
+  --color-grayscale-11: #cfc8bc;
+  --color-grayscale-12: #efe9de;
   --color-green-9: #E5A93C;
   --color-amber-9: #E5A93C;
+  --ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dark {
-  --color-grayscale-1: #0d0e11;
-  --color-grayscale-2: #141519;
-  --color-grayscale-3: #202228;
-  --color-grayscale-4: #282a32;
-  --color-grayscale-5: #32353f;
-  --color-grayscale-6: #3e424f;
-  --color-grayscale-7: #4e5363;
-  --color-grayscale-8: #73798c;
-  --color-grayscale-9: #8e95a9;
-  --color-grayscale-10: #acb3c6;
-  --color-grayscale-11: #cdd3e3;
-  --color-grayscale-12: #f3f5f8;
+  --color-grayscale-1: #0c0b0a;
+  --color-grayscale-2: #141311;
+  --color-grayscale-3: #1e1c19;
+  --color-grayscale-4: #262421;
+  --color-grayscale-5: #33302b;
+  --color-grayscale-6: #444039;
+  --color-grayscale-7: #5a554c;
+  --color-grayscale-8: #787268;
+  --color-grayscale-9: #958e83;
+  --color-grayscale-10: #aaa398;
+  --color-grayscale-11: #cfc8bc;
+  --color-grayscale-12: #efe9de;
   --color-green-9: #E5A93C;
   --color-amber-9: #E5A93C;
 }
 
 body {
-  background-color: #060608;
-  color: #F5F5F5;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0c0b0a;
+  color: #efe9de;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Subtle glow for champagne gold selected seat */
-.seat-selected-glow {
-  box-shadow: 0 0 14px rgba(229, 169, 60, 0.55), 0 0 2px rgba(229, 169, 60, 0.8);
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 .screen-arc-glow {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+  filter: drop-shadow(0 0 6px rgba(239, 233, 222, 0.16));
 }
 
 /* Custom sleek scrollbar */
@@ -78,11 +80,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #060608;
+  background: #0c0b0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222222;
+  background: #2b2824;
   border-radius: 9999px;
 }
 

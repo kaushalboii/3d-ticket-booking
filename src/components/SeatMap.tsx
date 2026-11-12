@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Seat } from '../types';
 import { ScreenArc } from './ScreenArc';
 
@@ -10,14 +10,13 @@ interface SeatMapProps {
   showSweetSpotGuide?: boolean;
 }
 
-// Framer Motion staggered entrance animation variants (50ms delay between rows)
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05, // Stagger each row entrance by exactly 50ms
-      delayChildren: 0.05,
+      staggerChildren: 0.045,
+      delayChildren: 0.04,
     },
   },
 };
@@ -25,15 +24,13 @@ const containerVariants = {
 const rowVariants = {
   hidden: {
     opacity: 0,
-    y: 16,
-    scale: 0.985,
+    y: 10,
   },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.42,
+      duration: 0.36,
       ease: [0.22, 1, 0.36, 1] as const,
     },
   },
@@ -45,28 +42,27 @@ export const SeatMap: React.FC<SeatMapProps> = ({
   onSelectSeat,
   showSweetSpotGuide = false,
 }) => {
-  // Extract unique rows dynamically based on the current screen layout
   const rows = Array.from(new Set(seats.map((s) => s.row))).sort();
 
   return (
-    <div className="w-full flex-1 overflow-x-auto overflow-y-auto px-4 py-3 select-none flex flex-col items-center">
+    <div className="w-full flex-1 overflow-x-auto overflow-y-auto px-4 py-4 select-none flex flex-col items-center justify-center">
       <div className="min-w-max mx-auto flex flex-col items-center">
-        {/* Curved Screen Arc at Top with smooth fade in */}
+        {/* Centered Curved Screen Arc */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] as const }}
-          className="w-full flex justify-center"
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
+          className="w-full flex justify-center mb-4"
         >
           <ScreenArc />
         </motion.div>
 
-        {/* Auditorium Seating Rows with Staggered Framer Motion Entrance */}
+        {/* Symmetrical 3-Bank Auditorium Rows */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center gap-2 mt-2 mb-4"
+          className="flex flex-col items-center gap-2 my-2"
         >
           {rows.map((rowLetter) => {
             const rowSeats = seats.filter((s) => s.row === rowLetter);
@@ -76,7 +72,6 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             const isReclinerRow = rowLetter === rows[rows.length - 1];
             const isSweetSpotRow = showSweetSpotGuide && ['D', 'E', 'F'].includes(rowLetter);
 
-            // Calculate bank splits (e.g. 3 - 8 - 3 or proportional)
             let leftMax = 3;
             let rightMin = 12;
             if (seatsPerRow === 16) {
@@ -94,25 +89,23 @@ export const SeatMap: React.FC<SeatMapProps> = ({
             const centerSeats = rowSeats.filter((s) => s.number > leftMax && s.number < rightMin);
             const rightSeats = rowSeats.filter((s) => s.number >= rightMin);
 
+            const rowLabelClass = `w-5 text-[11px] font-medium text-center font-mono select-none tabular-nums ${
+              isSweetSpotRow ? 'text-[#E5A93C]' : 'text-[#5a554c]'
+            }`;
+
             return (
               <motion.div
                 key={rowLetter}
                 variants={rowVariants}
-                className={`flex items-center gap-2.5 min-w-max justify-center px-2 py-0.5 rounded-lg transition ${
-                  isSweetSpotRow ? 'bg-[#E5A93C]/[0.04] border border-[#E5A93C]/20' : ''
+                className={`flex items-center gap-2 min-w-max justify-center px-2 py-0.5 rounded-lg transition-colors duration-150 ${
+                  isSweetSpotRow ? 'bg-[#E5A93C]/[0.05] border border-[#E5A93C]/20' : ''
                 }`}
               >
-                {/* Left Row Letter */}
-                <span
-                  className={`w-4 text-[11px] font-semibold text-center font-mono select-none ${
-                    isSweetSpotRow ? 'text-[#E5A93C]' : 'text-[#555555]'
-                  }`}
-                >
-                  {rowLetter}
-                </span>
+                {/* Left Row Marker */}
+                <span className={rowLabelClass}>{rowLetter}</span>
 
-                {/* Left Block */}
-                <div className="flex items-center gap-1.5 justify-end">
+                {/* Left Bank */}
+                <div className="flex items-center gap-1.5">
                   {leftSeats.map((seat) => (
                     <SeatCapsule
                       key={seat.id}
@@ -124,11 +117,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({
                   ))}
                 </div>
 
-                {/* Left Aisle Gap */}
-                <div className="w-3.5 sm:w-5 shrink-0" />
+                {/* Left Aisle */}
+                <div className="w-3 sm:w-5 shrink-0" />
 
-                {/* Center Block */}
-                <div className="flex items-center gap-1.5 justify-center">
+                {/* Center Bank */}
+                <div className="flex items-center gap-1.5">
                   {centerSeats.map((seat) => (
                     <SeatCapsule
                       key={seat.id}
@@ -140,11 +133,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({
                   ))}
                 </div>
 
-                {/* Right Aisle Gap */}
-                <div className="w-3.5 sm:w-5 shrink-0" />
+                {/* Right Aisle */}
+                <div className="w-3 sm:w-5 shrink-0" />
 
-                {/* Right Block */}
-                <div className="flex items-center gap-1.5 justify-start">
+                {/* Right Bank */}
+                <div className="flex items-center gap-1.5">
                   {rightSeats.map((seat) => (
                     <SeatCapsule
                       key={seat.id}
@@ -155,6 +148,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({
                     />
                   ))}
                 </div>
+
+                {/* Symmetrical Right Row Marker (Keeps center column aligned directly below screen midpoint) */}
+                <span className={rowLabelClass} aria-hidden="true">
+                  {rowLetter}
+                </span>
               </motion.div>
             );
           })}
@@ -171,6 +169,8 @@ interface SeatCapsuleProps {
   onClick: () => void;
 }
 
+const seatDimensions = 'w-[20px] h-[16px] sm:w-[24px] sm:h-[18px] rounded-[4px]';
+
 const SeatCapsule: React.FC<SeatCapsuleProps> = ({
   seat,
   isSelected,
@@ -179,51 +179,49 @@ const SeatCapsule: React.FC<SeatCapsuleProps> = ({
 }) => {
   const isOccupied = seat.status === 'occupied';
 
-  // 1. Selected State (Warm Champagne Gold capsule with number & smooth spring pop animation)
   if (isSelected) {
     return (
       <motion.button
-        initial={{ scale: 0.85, opacity: 0.8 }}
-        animate={{ scale: 1.1, opacity: 1 }}
-        whileHover={{ scale: 1.18 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        transition={{ type: 'spring', stiffness: 460, damping: 28 }}
         onClick={onClick}
-        className="w-[19px] h-[15px] sm:w-[23px] sm:h-[17px] rounded-[4px] bg-[#E5A93C] text-[#050505] font-extrabold text-[9px] flex items-center justify-center shadow-[0_0_14px_rgba(229,169,60,0.65)] z-10 cursor-pointer"
-        title={`Seat ${seat.id} (Selected · ₹${seat.price})`}
+        className={`${seatDimensions} bg-[#E5A93C] text-[#12110f] font-semibold font-mono text-[10px] leading-none flex items-center justify-center shadow-sm z-10 cursor-pointer tabular-nums`}
+        title={`Seat ${seat.id} · Selected · ₹${seat.price}`}
+        aria-pressed="true"
       >
         {seat.number}
       </motion.button>
     );
   }
 
-  // 2. Taken State (Muted Dark Red rounded rectangle matching video frame 00:00)
   if (isOccupied) {
     return (
       <div
-        className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#6E2D33] border border-[#8E3339] opacity-90 cursor-not-allowed select-none"
-        title={`Seat ${seat.id} (Taken)`}
+        className={`${seatDimensions} bg-[#512327] border border-[#6e3035] opacity-85 cursor-not-allowed select-none`}
+        title={`Seat ${seat.id} · Taken`}
       />
     );
   }
 
-  // 3. Recliner Row Available State
   if (isRecliner) {
     return (
       <button
         onClick={onClick}
-        className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#161920] border border-[#3A4150] hover:border-[#E5A93C] hover:bg-[#202530] transition active:scale-95 cursor-pointer"
-        title={`Seat ${seat.id} (Recliner · ₹${seat.price})`}
+        className={`${seatDimensions} bg-[#1c1f24] border border-[#3a404c] hover:border-[#E5A93C] hover:bg-[#252a32] transition-colors duration-150 active:scale-[0.95] cursor-pointer`}
+        title={`Seat ${seat.id} · Recliner · ₹${seat.price}`}
+        aria-label={`Seat ${seat.id}, Recliner, ₹${seat.price}`}
       />
     );
   }
 
-  // 4. Standard Available State (Dark charcoal capsule matching video frame 00:00)
   return (
     <button
       onClick={onClick}
-      className="w-[18px] h-[14px] sm:w-[22px] sm:h-[16px] rounded-[4px] bg-[#1F2228] border border-[#2A303C] hover:border-[#E5A93C] hover:bg-[#2A303C] transition active:scale-95 cursor-pointer"
-      title={`Seat ${seat.id} (Standard · ₹${seat.price})`}
+      className={`${seatDimensions} bg-[#1e1c19] border border-[#efe9de]/[0.1] hover:border-[#E5A93C] hover:bg-[#282521] transition-colors duration-150 active:scale-[0.95] cursor-pointer`}
+      title={`Seat ${seat.id} · Standard · ₹${seat.price}`}
+      aria-label={`Seat ${seat.id}, Standard, ₹${seat.price}`}
     />
   );
 };

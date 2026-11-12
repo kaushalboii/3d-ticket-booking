@@ -126,6 +126,9 @@ export default function App() {
     setCurrentScreen('confirmation');
   };
 
+  const activeShowtimeObj =
+    showtimes.find((st) => st.id === selectedShowtimeId) || showtimes[1];
+
   // Render Inner Cinema Application Content
   const renderAppContent = () => {
     // 1. Landing Page: Minimal black and white cinema portal
@@ -142,7 +145,7 @@ export default function App() {
     // 2. Booking Confirmation Pass (Itemizes all booked seats)
     if (currentScreen === 'confirmation' && confirmedBooking) {
       return (
-        <div className="w-full h-full max-w-lg mx-auto flex flex-col">
+        <div className="w-full h-full mx-auto flex flex-col">
           <BookingConfirmation
             booking={confirmedBooking}
             onDone={() => {
@@ -155,13 +158,16 @@ export default function App() {
       );
     }
 
-    // 3. Seat-View Preview (STATE B) with React-Three-Fiber Camera Swoop & Multi-Seat Switcher
+    // 3. Seat-View Preview (STATE B) with Three.js Camera Swoop & Multi-Seat Switcher
     if (currentScreen === 'seat_preview' && activePreviewSeat) {
       return (
         <SeatPreviewView
           seats={seats}
           seat={activePreviewSeat}
           selectedSeats={selectedSeats}
+          movieTitle={activeMovie.title}
+          movieBackdrop={activeMovie.backdrop}
+          screenName={currentScreenConfig.shortName}
           onSelectSeatToPreview={(s) => setFocusedPreviewSeatId(s.id)}
           onBackToSeatMap={handleBackToSeatMap}
           onBookSeat={() => setShowCheckout(true)}
@@ -169,10 +175,10 @@ export default function App() {
       );
     }
 
-    // 4. Seat Selection (STATE A: Exact Reproduction of Video Frame 00:00)
+    // 4. Seat Selection (STATE A)
     return (
-      <div className="w-full h-full max-w-2xl mx-auto flex flex-col justify-between overflow-hidden bg-[#050505]">
-        {/* Top Header matching Video Frame 00:00 */}
+      <div className="w-full h-full max-w-3xl mx-auto sm:border-x sm:border-[#efe9de]/[0.06] flex flex-col justify-between overflow-hidden bg-[#0c0b0a]">
+        {/* Top Header */}
         <CinemaHeader
           cinemaName={INDIAN_CINEMA_INFO.shortName}
           hallAndDate={`${activeMovie.title} · ${currentScreenConfig.shortName} · Fri 14 Nov`}
@@ -184,7 +190,7 @@ export default function App() {
           userName={currentUser?.name}
         />
 
-        {/* Scrollable Auditorium Seat Map with curved screen arc and multi-seat selection */}
+        {/* Scrollable Auditorium Seat Map */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
           <SeatMap
             seats={seats}
@@ -193,11 +199,11 @@ export default function App() {
             showSweetSpotGuide={showSweetSpotGuide}
           />
 
-          {/* 4-Item Seat Legend matching Video Frame 00:00 (Available, Taken, Recliner, Selected) */}
+          {/* 4-Item Seat Legend */}
           <SeatLegend />
         </div>
 
-        {/* Bottom Booking Summary Bar (Supports 1, 2, or more seats!) */}
+        {/* Bottom Booking Summary Bar */}
         <SeatBottomBar
           selectedSeats={selectedSeats}
           onContinue={handleContinueToPreview}
@@ -207,8 +213,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] flex flex-col font-sans relative overflow-hidden">
-      {/* Responsive Main Container (Auto-aligns without artificial mobile mockup frames or overlays) */}
+    <div className="h-[100dvh] w-full bg-[#0c0b0a] text-[#efe9de] flex flex-col font-sans relative overflow-hidden">
       <main className="w-full h-full flex flex-col overflow-hidden">
         {renderAppContent()}
       </main>
@@ -228,10 +233,14 @@ export default function App() {
         />
       )}
 
-      {/* Checkout Modal (Supports multiple seats with itemized total) */}
+      {/* Checkout Modal */}
       {showCheckout && selectedSeats.length > 0 && (
         <CheckoutModal
           seats={selectedSeats}
+          movieTitle={activeMovie.title}
+          movieLanguage={activeMovie.language}
+          hallName={`${currentScreenConfig.shortName} · ${INDIAN_CINEMA_INFO.date}`}
+          showtime={activeShowtimeObj.time}
           onClose={() => setShowCheckout(false)}
           onConfirmBooking={handleConfirmBooking}
         />

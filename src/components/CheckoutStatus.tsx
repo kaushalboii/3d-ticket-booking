@@ -13,7 +13,7 @@ function Logo() {
     <img
       alt=""
       className="size-6"
-      src="/images/receipt-printer-logo.png"
+      src="./images/receipt-printer-logo.png"
     />
   );
 }

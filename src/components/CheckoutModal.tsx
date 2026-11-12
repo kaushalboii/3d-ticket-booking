@@ -5,12 +5,20 @@ import { CreditCard, ShieldCheck, X, CheckCircle2, Ticket, Smartphone } from 'lu
 
 interface CheckoutModalProps {
   seats: Seat[];
+  movieTitle?: string;
+  movieLanguage?: string;
+  hallName?: string;
+  showtime?: string;
   onClose: () => void;
   onConfirmBooking: (booking: Booking) => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   seats,
+  movieTitle = CINEMA_INFO.movieTitle,
+  movieLanguage = 'Tamil',
+  hallName = CINEMA_INFO.hall,
+  showtime = CINEMA_INFO.showtime,
   onClose,
   onConfirmBooking,
 }) => {
@@ -19,7 +27,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [upiId, setUpiId] = useState('kaushal@okaxis');
 
   const ticketPrice = seats.reduce((sum, s) => sum + s.price, 0);
-  const fee = 30 * seats.length; // ₹30 GST & booking fee per ticket
+  const fee = 30 * seats.length;
   const total = ticketPrice + fee;
 
   const handlePay = () => {
@@ -29,14 +37,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       const newBooking: Booking = {
         id: `bk-${Date.now()}`,
         reference: `VELS-${Math.floor(100000 + Math.random() * 900000)}`,
-        movieTitle: CINEMA_INFO.movieTitle,
-        language: 'Tamil',
+        movieTitle,
+        language: movieLanguage,
         theatreName: CINEMA_INFO.name,
-        hallName: CINEMA_INFO.hall,
+        hallName,
         date: CINEMA_INFO.date,
-        showtime: CINEMA_INFO.showtime,
+        showtime,
         seat: seats[0],
-        seats: seats,
+        seats,
         ticketPrice,
         fee,
         total,
@@ -45,97 +53,98 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         customerPhone: '+91 98401 23456',
       };
       onConfirmBooking(newBooking);
-    }, 900);
+    }, 800);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm select-none">
-      <div className="w-full max-w-sm bg-[#111111] border border-[#222222] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0b0a]/85 backdrop-blur-sm select-none">
+      <div className="w-full max-w-sm bg-[#141311] border border-[#efe9de]/[0.08] rounded-[20px] overflow-hidden shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#1C1C1C] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-[#1A1A1A] border border-[#262626] flex items-center justify-center text-[#E5A93C]">
-              <Ticket className="w-3.5 h-3.5" />
+        <div className="px-5 py-4 border-b border-[#efe9de]/[0.08] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#1e1c19] border border-[#efe9de]/[0.08] flex items-center justify-center text-[#E5A93C]">
+              <Ticket className="w-4 h-4" strokeWidth={1.75} />
             </div>
             <div>
-              <h3 className="text-[#F5F5F5] font-semibold text-sm">
-                Confirm Reservation
+              <h3 className="text-[#efe9de] font-semibold text-sm leading-tight">
+                Confirm reservation
               </h3>
-              <p className="text-[#888888] text-[11px]">
-                {CINEMA_INFO.shortName} · {CINEMA_INFO.movieTitle}
+              <p className="text-[#787268] text-xs mt-0.5 truncate max-w-[200px]">
+                {movieTitle} · {showtime}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-[#1A1A1A] text-[#888888] hover:text-[#F5F5F5] flex items-center justify-center cursor-pointer"
+            aria-label="Close checkout"
+            className="w-8 h-8 rounded-lg bg-[#1e1c19] text-[#aaa398] hover:text-[#efe9de] flex items-center justify-center transition-colors duration-150 cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" strokeWidth={1.75} />
           </button>
         </div>
 
-        {/* Booking Summary */}
+        {/* Summary & Payment */}
         <div className="p-5 space-y-4">
-          <div className="bg-[#090909] border border-[#1A1A1A] rounded-2xl p-3.5 space-y-2">
+          <div className="bg-[#0c0b0a] border border-[#efe9de]/[0.08] rounded-xl p-4 space-y-2.5 tabular-nums">
             <div className="flex justify-between items-start text-xs">
-              <span className="text-[#888888]">Selected Seats</span>
+              <span className="text-[#787268]">Selected seats</span>
               <div className="text-right">
-                <span className="text-white font-bold block">
+                <span className="text-[#efe9de] font-semibold block font-mono">
                   {seats.map((s) => s.id).join(', ')}
                 </span>
-                <span className="text-[10px] text-[#71717A]">
-                  {seats.length} {seats.length > 1 ? 'Tickets' : 'Ticket'} ({seats[0].tierLabel})
+                <span className="text-[11px] text-[#aaa398]">
+                  {seats.length} {seats.length > 1 ? 'tickets' : 'ticket'} · {seats[0].tierLabel}
                 </span>
               </div>
             </div>
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-[#888888]">Ticket Total</span>
-              <span className="text-white font-mono">₹{ticketPrice}</span>
+              <span className="text-[#787268]">Tickets</span>
+              <span className="text-[#efe9de] font-mono">₹{ticketPrice}</span>
             </div>
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-[#888888]">Convenience Fee & GST</span>
-              <span className="text-white font-mono">₹{fee}</span>
+              <span className="text-[#787268]">Convenience fee & GST</span>
+              <span className="text-[#efe9de] font-mono">₹{fee}</span>
             </div>
 
-            <div className="pt-2 border-t border-[#1C1C1C] flex justify-between items-center">
-              <span className="text-xs font-semibold text-[#888888]">Total Amount</span>
-              <span className="text-[#E5A93C] font-bold text-base font-mono">
+            <div className="pt-2.5 border-t border-[#efe9de]/[0.08] flex justify-between items-center">
+              <span className="text-xs font-medium text-[#aaa398]">Total</span>
+              <span className="text-[#E5A93C] font-semibold text-base font-mono">
                 ₹{total}
               </span>
             </div>
           </div>
 
-          {/* Payment Method Selector */}
+          {/* Payment Method */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#777777] block">
-              Payment Method (India)
+            <label className="text-xs font-medium text-[#aaa398] block">
+              Payment method
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setPaymentMethod('upi')}
-                className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                className={`h-10 px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer ${
                   paymentMethod === 'upi'
-                    ? 'bg-[#18181a] border-[#E5A93C] text-[#E5A93C]'
-                    : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
+                    ? 'bg-[#262421] border-[#E5A93C]/60 text-[#efe9de]'
+                    : 'bg-[#0c0b0a] border-[#efe9de]/[0.08] text-[#787268] hover:text-[#aaa398]'
                 }`}
               >
-                <Smartphone className="w-3.5 h-3.5" />
+                <Smartphone className="w-3.5 h-3.5" strokeWidth={1.75} />
                 <span>UPI / GPay</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod('card')}
-                className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                className={`h-10 px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer ${
                   paymentMethod === 'card'
-                    ? 'bg-[#18181a] border-[#E5A93C] text-[#E5A93C]'
-                    : 'bg-[#0E0E0E] border-[#222222] text-[#888888]'
+                    ? 'bg-[#262421] border-[#E5A93C]/60 text-[#efe9de]'
+                    : 'bg-[#0c0b0a] border-[#efe9de]/[0.08] text-[#787268] hover:text-[#aaa398]'
                 }`}
               >
-                <CreditCard className="w-3.5 h-3.5" />
+                <CreditCard className="w-3.5 h-3.5" strokeWidth={1.75} />
                 <span>Cards / RuPay</span>
               </button>
             </div>
@@ -146,32 +155,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   type="text"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
-                  placeholder="Enter UPI ID (e.g. mobile@upi)"
-                  className="w-full bg-[#080808] border border-[#222222] px-3.5 py-2 rounded-xl text-xs text-white placeholder:text-[#555555] focus:outline-none focus:border-[#E5A93C] font-mono"
+                  placeholder="Enter UPI ID"
+                  className="w-full h-10 bg-[#0c0b0a] border border-[#efe9de]/[0.08] px-3.5 rounded-lg text-xs text-[#efe9de] placeholder:text-[#5a554c] focus:outline-none focus:border-[#E5A93C] font-mono"
                 />
               </div>
             )}
           </div>
 
-          {/* Pay Button: Clean High-Contrast Action */}
           <button
             onClick={handlePay}
             disabled={isProcessing}
-            className="w-full py-3 rounded-full bg-white hover:bg-[#F2F2F5] text-[#060608] font-bold text-xs tracking-tight transition active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-white/10 cursor-pointer disabled:opacity-50"
+            className="w-full h-11 rounded-xl bg-[#efe9de] hover:bg-white text-[#12110f] font-semibold text-xs transition-colors duration-150 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 tabular-nums"
           >
             {isProcessing ? (
-              <span>Securing Reservation in Audi 3...</span>
+              <span>Reserving seats in {hallName}...</span>
             ) : (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Pay ₹{total} & Issue Passes</span>
+                <CheckCircle2 className="w-4 h-4" strokeWidth={1.75} />
+                <span>Pay ₹{total} & issue passes</span>
               </>
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#666666]">
-            <ShieldCheck className="w-3 h-3 text-[#E5A93C]" />
-            <span>Instant booking confirmation with scannable QR ticket</span>
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#787268]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#E5A93C]" strokeWidth={1.75} />
+            <span>Instant digital ticket and thermal receipt</span>
           </div>
         </div>
       </div>

@@ -48,17 +48,17 @@ export const TactileButton = React.forwardRef<
 
     const variantClasses = {
       default:
-        "bg-[#1c1c1f] hover:bg-[#25252a] text-[#ededed] border-[#323238] border-b-[#121214] shadow-sm active:bg-[#18181a]",
+        "bg-[#1c1a17] hover:bg-[#25221e] text-[#efe9de] border-[#efe9de]/[0.12] border-b-[#0c0b0a] shadow-sm active:bg-[#141311]",
       primary:
-        "bg-[#E5A93C] hover:brightness-105 text-[#070709] font-semibold border-[#d99827] border-b-[#9e6912] shadow-[0_4px_12px_rgba(229,169,60,0.25)] active:bg-[#d4972c]",
+        "bg-[#E5A93C] hover:brightness-105 text-[#0c0b0a] font-semibold border-[#d99827] border-b-[#9e6912] active:bg-[#d4972c]",
       secondary:
-        "bg-[#28282d] hover:bg-[#323238] text-white border-[#3f3f46] border-b-[#1f1f23]",
+        "bg-[#25221e] hover:bg-[#2f2b26] text-[#efe9de] border-[#efe9de]/[0.14] border-b-[#141311]",
       subtle:
-        "bg-transparent hover:bg-white/5 text-[#a1a1aa] hover:text-white border-transparent border-b-transparent shadow-none",
+        "bg-transparent hover:bg-[#efe9de]/[0.05] text-[#9b9388] hover:text-[#efe9de] border-transparent border-b-transparent shadow-none",
     }[variant];
 
     const baseClass = cn(
-      "relative inline-flex items-center justify-center font-medium select-none transition-all duration-75 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#E5A93C]/50 disabled:opacity-50 disabled:pointer-events-none",
+      "relative inline-flex items-center justify-center font-medium select-none transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#E5A93C]/50 disabled:opacity-50 disabled:pointer-events-none",
       sizeClasses,
       depthClasses,
       variantClasses,

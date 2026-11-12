@@ -142,18 +142,18 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
         className="max-w-[370px] w-full"
       >
         {/* Machine Casing */}
-        <ReceiptPrinter.Machine className="border-[#2b2c32] bg-[#141519] shadow-2xl">
+        <ReceiptPrinter.Machine className="border-[#efe9de]/[0.08] bg-[#141311] shadow-2xl">
           <ReceiptPrinter.Header>
             <div className="flex items-center gap-2">
-              <div className="size-6 rounded-md bg-[#E5A93C]/20 border border-[#E5A93C]/40 flex items-center justify-center text-[#E5A93C]">
+              <div className="size-6 rounded-md bg-[#E5A93C]/15 border border-[#E5A93C]/30 flex items-center justify-center text-[#E5A93C]">
                 <PrinterIcon size={14} weight="bold" />
               </div>
               <div className="leading-tight">
-                <span className="text-[11px] font-bold tracking-wider text-white uppercase block">
-                  CINESCAPE POS
+                <span className="text-[11px] font-semibold text-[#efe9de] block">
+                  Cinescape POS
                 </span>
-                <span className="text-[9px] text-[#71717A] font-mono">
-                  TERM-03 · AUDI 3
+                <span className="text-[9px] text-[#6e675f] font-mono tabular-nums">
+                  TERM-03 · {booking.hallName}
                 </span>
               </div>
             </div>
@@ -186,25 +186,25 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
           </ReceiptPrinter.Header>
 
           {/* Machine Terminal LCD Screen */}
-          <ReceiptPrinter.Screen className="mt-3 border-[#222327] bg-[#0c0d0f] shadow-inner">
+          <ReceiptPrinter.Screen className="mt-3 border-[#efe9de]/[0.08] bg-[#0c0b0a] shadow-inner">
             <div className="space-y-3">
-              <div className="flex items-start justify-between border-b border-[#1f2026] pb-2.5">
+              <div className="flex items-start justify-between border-b border-[#efe9de]/[0.08] pb-2.5">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-[#E5A93C] tracking-wider block font-semibold">
+                  <span className="text-[10px] font-mono text-[#E5A93C] block font-medium">
                     {booking.theatreName}
                   </span>
-                  <h4 className="text-xs font-bold text-white mt-0.5">
+                  <h4 className="text-xs font-semibold text-[#efe9de] mt-0.5">
                     {booking.movieTitle}
                   </h4>
-                  <p className="text-[10px] text-[#8e95a9] font-mono mt-0.5">
+                  <p className="text-[10px] text-[#9b9388] font-mono mt-0.5 tabular-nums">
                     {booking.hallName} · Seats {seatsFormatted}
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-[#73798c] block uppercase tracking-wider">
+                <div className="text-right tabular-nums">
+                  <span className="text-[10px] text-[#6e675f] block">
                     Paid
                   </span>
-                  <span className="text-sm font-bold font-mono text-[#E5A93C]">
+                  <span className="text-sm font-semibold font-mono text-[#E5A93C]">
                     ₹{booking.total}
                   </span>
                 </div>
@@ -333,14 +333,14 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
 
       {/* Interactive Controls Bar */}
       <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
-        <div className="flex items-center gap-1 bg-[#121316] border border-[#222327] rounded-full p-1">
+        <div className="flex items-center gap-1 bg-[#141311] border border-[#efe9de]/[0.08] rounded-full p-1">
           <button
             type="button"
             onClick={() => setStage("processing")}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors cursor-pointer ${
               stage === "processing"
-                ? "bg-[#E5A93C] text-[#070709]"
-                : "text-[#888888] hover:text-white"
+                ? "bg-[#E5A93C] text-[#0c0b0a] font-semibold"
+                : "text-[#9b9388] hover:text-[#efe9de]"
             }`}
           >
             Processing
@@ -348,10 +348,10 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
           <button
             type="button"
             onClick={() => setStage("printing")}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors cursor-pointer ${
               stage === "printing"
-                ? "bg-[#E5A93C] text-[#070709]"
-                : "text-[#888888] hover:text-white"
+                ? "bg-[#E5A93C] text-[#0c0b0a] font-semibold"
+                : "text-[#9b9388] hover:text-[#efe9de]"
             }`}
           >
             Printing
@@ -359,10 +359,10 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
           <button
             type="button"
             onClick={() => setStage("complete")}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors cursor-pointer ${
               stage === "complete"
-                ? "bg-[#E5A93C] text-[#070709]"
-                : "text-[#888888] hover:text-white"
+                ? "bg-[#E5A93C] text-[#0c0b0a] font-semibold"
+                : "text-[#9b9388] hover:text-[#efe9de]"
             }`}
           >
             Complete
@@ -372,10 +372,10 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
         <button
           type="button"
           onClick={() => setFeedMotion((m) => (m === "stepped" ? "smooth" : "stepped"))}
-          className="px-3 py-1.5 rounded-full bg-[#121316] hover:bg-[#1a1b20] border border-[#222327] text-[10px] text-[#b0b4c0] transition cursor-pointer flex items-center gap-1.5 font-mono"
+          className="px-3 py-1.5 rounded-full bg-[#141311] hover:bg-[#1c1a17] border border-[#efe9de]/[0.08] text-[11px] text-[#9b9388] transition-colors cursor-pointer flex items-center gap-1.5 font-mono"
         >
           <span>Feed:</span>
-          <span className="font-bold text-[#E5A93C] uppercase">{feedMotion}</span>
+          <span className="font-semibold text-[#E5A93C]">{feedMotion}</span>
         </button>
       </div>
     </div>
